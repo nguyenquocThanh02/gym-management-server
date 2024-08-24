@@ -1,26 +1,26 @@
 const Device = require("../models/DeviceModal");
 
-const addDevice = (newPT) => {
+const addDevice = (newDevice) => {
   return new Promise(async (resolve, reject) => {
-    const { contactInfo } = newPT;
+    const { name } = newDevice;
     try {
-      const checkExistPhone = await Device.findOne({
-        contactInfo: { phone: contactInfo?.phone },
+      const checkExistDevice = await Device.findOne({
+        name: name,
       });
 
-      if (checkExistPhone !== null) {
+      if (checkExistDevice !== null) {
         reject({
           status: "400",
-          message: "The phone is already",
+          message: "The device is already",
         });
       }
 
-      const createdPT = await Device.create(newPT);
-      if (createdPT) {
+      const createdDevice = await Device.create(newDevice);
+      if (createdDevice) {
         resolve({
           status: "201",
           message: "SUCCESS",
-          data: createdPT,
+          data: createdDevice,
         });
       }
     } catch (e) {
@@ -32,19 +32,19 @@ const addDevice = (newPT) => {
 const getDetailsDevice = (id) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const pt = await Device.findOne({
+      const device = await Device.findOne({
         _id: id,
       });
-      if (pt === null) {
+      if (device === null) {
         reject({
           status: "400",
-          message: "The pt is not defined",
+          message: "The device is not defined",
         });
       }
       resolve({
         status: "200",
         message: "SUCCESS",
-        data: pt,
+        data: device,
       });
     } catch (e) {
       reject(e);
@@ -54,12 +54,12 @@ const getDetailsDevice = (id) => {
 const getAllDevice = () => {
   return new Promise(async (resolve, reject) => {
     try {
-      const pts = await Device.find();
+      const devices = await Device.find();
 
       resolve({
         status: "200",
         message: "SUCCESS",
-        data: pts,
+        data: devices,
       });
     } catch (e) {
       reject(e);
@@ -70,23 +70,23 @@ const getAllDevice = () => {
 const updateDevice = (id, data) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const checkExistPT = await Device.findOne({
+      const checkExistDevice = await Device.findOne({
         _id: id,
       });
-      if (checkExistPT === null) {
+      if (checkExistDevice === null) {
         reject({
           status: "400",
-          message: "The pt is not defined",
+          message: "The device is not defined",
         });
       }
 
-      const updatedPT = await Device.findByIdAndUpdate(id, data, {
+      const updatedDevice = await Device.findByIdAndUpdate(id, data, {
         new: true,
       });
       resolve({
         status: "200",
         message: "SUCCESS",
-        data: updatedPT,
+        data: updatedDevice,
       });
     } catch (e) {
       reject(e);
@@ -97,19 +97,16 @@ const updateDevice = (id, data) => {
 const changeStatusDevice = (id, status) => {
   return new Promise(async (resolve, reject) => {
     try {
-      console.log(">>>>", status);
-
-      const checkExistPT = await Device.findOne({
+      const checkExistDevice = await Device.findOne({
         _id: id,
       });
-      if (checkExistPT === null) {
+      if (checkExistDevice === null) {
         reject({
           status: "400",
-          message: "The pt is not defined",
+          message: "The device is not defined",
         });
       }
 
-      console.log(">>>>", status);
       await Device.findByIdAndUpdate(id, { status: status }, { new: true });
       resolve({
         status: "200",
@@ -128,15 +125,15 @@ const deleteDevice = (id) => {
         _id: id,
       });
       if (checkDevice === null) {
-        resolve({
-          status: "ERR",
+        reject({
+          status: "400",
           message: "The device is not defined",
         });
       }
 
       await Device.findByIdAndDelete(id);
       resolve({
-        status: "OK",
+        status: "200",
         message: "Delete device success",
       });
     } catch (e) {

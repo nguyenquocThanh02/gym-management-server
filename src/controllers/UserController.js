@@ -31,25 +31,18 @@ const register = async (req, res) => {
 
 const login = async (req, res) => {
   try {
-    const { accountName, email, password } = req.body;
-    const reg = /^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/;
-    const isCheckEmail = reg.test(email);
+    const { account, password } = req.body;
+    const role = req?.params?.role || "";
 
-    if (!password || (!accountName && !email)) {
+    if (!password || !account) {
       return res.status(400).json({
         status: "400",
         message: "The input is required",
       });
     }
-    if (email && !isCheckEmail) {
-      return res.status(400).json({
-        status: "400",
-        message: "Invalid email format",
-      });
-    }
 
-    const response = await UserService.login(req.body);
-    res.cookie("jwt", response.access_token, { httpOnly: true });
+    const response = await UserService.login(req.body, role);
+    // res.cookie("jwt", response.access_token, { httpOnly: true });
     return res.status(200).json(response);
   } catch (e) {
     if (e?.status) {

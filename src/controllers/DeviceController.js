@@ -2,11 +2,11 @@ const DeviceService = require("../services/DeviceService");
 
 const addDevice = async (req, res) => {
   try {
-    const { name, specialty, contactInfo, address } = req.body;
-    if (!name || !specialty || !contactInfo?.phone || !address) {
+    const { name, type, image } = req.body;
+    if (!name || !type || !image) {
       return res.status(400).json({
         status: "400",
-        message: "The input is required",
+        message: "The name, type, image is required",
       });
     }
     const response = await DeviceService.addDevice(req.body);
@@ -27,7 +27,7 @@ const updateDevice = async (req, res) => {
     if (!DeviceId) {
       return res.status(400).json({
         status: "ERR",
-        message: "The DeviceId is required",
+        message: "The Device Id is required",
       });
     }
     const response = await DeviceService.updateDevice(DeviceId, req.body);
@@ -107,10 +107,10 @@ const deleteDevice = async (req, res) => {
     if (!deviceId) {
       return res.status(200).json({
         status: "ERR",
-        message: "The device is required",
+        message: "The device id is required",
       });
     }
-    const response = await DeviceService.deleteProduct(deviceId);
+    const response = await DeviceService.deleteDevice(deviceId);
     return res.status(200).json(response);
   } catch (e) {
     return res.status(404).json({

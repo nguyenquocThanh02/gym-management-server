@@ -7,7 +7,7 @@ const {
 } = require("../middlewares/authMiddleware");
 
 router.post("/register", userController.register);
-router.post("/login", userController.login);
+router.post("/login/:role", userController.login);
 router.post("/log-out", userController.logoutUser);
 router.get("/get-all", userController.getAllUser);
 router.get(
