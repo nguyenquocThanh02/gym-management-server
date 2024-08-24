@@ -9,6 +9,11 @@ const PersonalTrainerSchema = new mongoose.Schema(
     bio: { type: String },
     address: { type: String, required: true },
     status: { type: String, enum: ["active", "block"], default: "active" },
+    contactInfor: {
+      phone: { type: String, required: true },
+      email: { type: String },
+      socialMedia: { type: String },
+    },
     // availability: [
     //   {
     //     day: {
@@ -28,11 +33,6 @@ const PersonalTrainerSchema = new mongoose.Schema(
     //     endTime: { type: String, required: true },
     //   },
     // ],
-    contactInfo: {
-      phone: { type: String, required: true },
-      email: { type: String },
-      socialMedia: { type: String },
-    },
     profileImage: { type: String },
   },
   {

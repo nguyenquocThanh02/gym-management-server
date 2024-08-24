@@ -2,11 +2,13 @@ const PersonalTrainer = require("../models/PersonalTrainerModal");
 
 const addPT = (newPT) => {
   return new Promise(async (resolve, reject) => {
-    const { contactInfo } = newPT;
+    const { contactInfor } = newPT;
     try {
       const checkExistPhone = await PersonalTrainer.findOne({
-        contactInfo: { phone: contactInfo?.phone },
+        "contactInfor.phone": contactInfor?.phone,
       });
+
+      console.log("?>>>", checkExistPhone, contactInfor.phone);
 
       if (checkExistPhone !== null) {
         reject({

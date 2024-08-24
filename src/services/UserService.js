@@ -43,21 +43,21 @@ const register = (newUser) => {
   });
 };
 
-const login = (userLogin) => {
+const login = (userLogin, role) => {
   return new Promise(async (resolve, reject) => {
-    const { accountName, email, password } = userLogin;
+    const { account, password } = userLogin;
 
     try {
-      let checkUser;
-      if (accountName) {
-        checkUser = await User.findOne({
-          accountName: accountName,
-        });
-      } else {
-        checkUser = await User.findOne({
-          email: email,
-        });
-      }
+      const checkUserByName = await User.findOne({
+        accountName: account,
+      });
+
+      const checkUserByEmail = await User.findOne({
+        email: account,
+      });
+
+      const checkUser = checkUserByEmail || checkUserByName;
+
       if (checkUser === null) {
         reject({
           status: "400",
@@ -72,6 +72,15 @@ const login = (userLogin) => {
           message: "The password or user is incorrect",
         });
       }
+
+      if (role === "admin") {
+        if (checkUser.role !== "admin")
+          reject({
+            status: "405",
+            message: "You don't have admin permit",
+          });
+      }
+
       const access_token = await genneralAccessToken({
         id: checkUser.id,
         role: checkUser.role,

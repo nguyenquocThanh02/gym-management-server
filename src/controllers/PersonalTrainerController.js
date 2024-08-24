@@ -1,9 +1,10 @@
-const PersonalTrainerService = require("../services/PersonalTrainer.service");
+const PersonalTrainerService = require("../services/PersonalTrainerService");
 
 const addPT = async (req, res) => {
   try {
-    const { name, specialty, contactInfo, address } = req.body;
-    if (!name || !specialty || !contactInfo?.phone || !address) {
+    const { name, specialty, contactInfor, address } = req.body;
+    console.log(req.body);
+    if (!name || !specialty || !contactInfor?.phone || !address) {
       return res.status(400).json({
         status: "400",
         message: "The input is required",
