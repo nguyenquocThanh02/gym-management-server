@@ -99,8 +99,6 @@ const updatePT = (id, data) => {
 const changeStatusPT = (id, status) => {
   return new Promise(async (resolve, reject) => {
     try {
-      console.log(">>>>", status);
-
       const checkExistPT = await PersonalTrainer.findOne({
         _id: id,
       });
@@ -111,7 +109,6 @@ const changeStatusPT = (id, status) => {
         });
       }
 
-      console.log(">>>>", status);
       await PersonalTrainer.findByIdAndUpdate(
         id,
         { status: status },

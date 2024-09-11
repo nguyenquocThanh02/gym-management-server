@@ -1,12 +1,14 @@
 const nodemailer = require("nodemailer");
-const fs = require("fs");
-const { promisify } = require("util");
+const fs = require("fs").promises;
+// const { promisify } = require("util");
 const path = require("path");
+const handlebars = require("handlebars");
 
-const readFile = promisify(fs.readFile);
+// const readFile = promisify(fs.readFile);
 
-const EmailService = async (email) => {
-  const transporter = nodemailer.createTransport({
+// Tạo transporter cho việc gửi email
+const createTransporter = () => {
+  return nodemailer.createTransport({
     host: "smtp.gmail.com",
     port: 587,
     secure: false,
@@ -15,16 +17,66 @@ const EmailService = async (email) => {
       pass: process.env.EMAIL_PASSWORD,
     },
   });
-  const filePath = path.join(__dirname, "../email.html");
-  const htmlContent = await readFile(filePath, "utf-8");
+};
+
+// Đọc nội dung email từ tệp
+const getHtmlContent = async (templateName, variables) => {
+  try {
+    const templateSource = await fs.readFile(
+      `./src/contentEmail/${templateName}`,
+      "utf-8"
+    );
+
+    const template = handlebars.compile(templateSource);
+
+    const htmlContent = template(variables);
+
+    return htmlContent;
+  } catch (error) {
+    console.error("Error reading or compiling template file:", error);
+    throw error;
+  }
+};
+
+// Hàm gửi email chung
+const sendEmail = async (to, invite_token = "", subject, templateName) => {
+  const transporter = createTransporter();
+
+  // Thay vì truyền trực tiếp tên template, truyền thêm biến invite_token
+  const htmlContent = await getHtmlContent(templateName, { invite_token });
+
   const info = await transporter.sendMail({
     from: '"GymMax" <2002nguyenquocthanh@gmail.com>', // sender address
-    to: email, // list of receivers
-    subject: "Hello ✔", // Subject line
-    text: "Hello world?", // plain text body
-    html: htmlContent,
+    to: to, // list of receivers
+    subject: subject, // Subject line
+    html: htmlContent, // HTML content
   });
+
   return info;
 };
 
-module.exports = EmailService;
+// Hàm gửi email đăng ký
+const EmailRegister = async (email, invite_token) => {
+  return sendEmail(
+    email,
+    invite_token,
+    "Welcome to GymMax!",
+    "emailRegister.html"
+  );
+};
+
+// Hàm gửi email đặt lại mật khẩu
+const EmailReset = async (email) => {
+  return sendEmail(email, "Password Reset Request", "emailReset.html");
+};
+
+// Hàm gửi email xác nhận
+const EmailConfirm = async (email) => {
+  return sendEmail(email, "Email Confirmation", "emailConfirm.html");
+};
+
+module.exports = {
+  EmailRegister,
+  EmailReset,
+  EmailConfirm,
+};

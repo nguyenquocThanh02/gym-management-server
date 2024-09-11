@@ -41,7 +41,7 @@ const refreshTokenJwtService = (req, res) => {
     try {
       const access_token = await genneralAccessToken({
         id: user?.id,
-        isAdmin: user?.isAdmin,
+        role: user?.role || "",
       });
       res.json({
         status: "OK",
@@ -58,8 +58,21 @@ const refreshTokenJwtService = (req, res) => {
   });
 };
 
+// Tạo tooken cho invite trainee
+const genneralTokenInvite = async (payload) => {
+  const access_token = jwt.sign(
+    {
+      ...payload,
+    },
+    process.env.INVITE_TOKEN,
+    { expiresIn: "3d" }
+  );
+
+  return access_token;
+};
 module.exports = {
   genneralAccessToken,
   genneralRefreshToken,
   refreshTokenJwtService,
+  genneralTokenInvite,
 };
