@@ -26,7 +26,7 @@ const updateDevice = async (req, res) => {
     const DeviceId = req.params.id;
     if (!DeviceId) {
       return res.status(400).json({
-        status: "ERR",
+        status: "400",
         message: "The Device Id is required",
       });
     }
@@ -48,8 +48,8 @@ const changeStatusDevice = async (req, res) => {
     const status = req.params.status;
 
     if (!DeviceId) {
-      return res.status(200).json({
-        status: "ERR",
+      return res.status(400).json({
+        status: "400",
         message: "The Device is required",
       });
     }

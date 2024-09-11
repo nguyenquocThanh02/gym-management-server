@@ -3,7 +3,7 @@ const JwtService = require("../services/JwtService");
 
 const register = async (req, res) => {
   try {
-    const { fullName, email, password, phone } = req.body;
+    const { email, password, phone } = req.body;
     const reg = /^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/;
     const isCheckEmail = reg.test(email);
     if (!email || !password || !phone) {
@@ -54,12 +54,36 @@ const login = async (req, res) => {
   }
 };
 
+const inviteAccount = async (req, res) => {
+  try {
+    const email = req?.params?.email || "";
+
+    if (!email) {
+      return res.status(400).json({
+        status: "400",
+        message: "The email is required",
+      });
+    }
+
+    const response = await UserService.inviteAccount(email);
+    // res.cookie("jwt", response.access_token, { httpOnly: true });
+    return res.status(200).json(response);
+  } catch (e) {
+    if (e?.status) {
+      return res.status(parseInt(e?.status, 10)).json(e);
+    }
+    return res.status(404).json({
+      message: "Error not found",
+    });
+  }
+};
+
 const updateUser = async (req, res) => {
   try {
     const userId = req.params.id;
     if (!userId) {
-      return res.status(200).json({
-        status: "ERR",
+      return res.status(400).json({
+        status: "400",
         message: "The userId is required",
       });
     }
@@ -68,6 +92,54 @@ const updateUser = async (req, res) => {
   } catch (e) {
     return res.status(404).json({
       message: e,
+    });
+  }
+};
+
+const changeStatus = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const status = req.params.status;
+
+    if (!userId) {
+      return res.status(400).json({
+        status: "400",
+        message: "The user is required",
+      });
+    }
+
+    const response = await UserService.changeStatus(userId, status);
+    return res.status(200).json(response);
+  } catch (e) {
+    if (e?.status) {
+      return res.status(e?.status).json(e);
+    }
+    return res.status(404).json({
+      message: "Error not found",
+    });
+  }
+};
+
+const changeRole = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const role = req.params.role;
+
+    if (!userId) {
+      return res.status(400).json({
+        status: "400",
+        message: "The user is required",
+      });
+    }
+
+    const response = await UserService.changeRole(userId, role);
+    return res.status(200).json(response);
+  } catch (e) {
+    if (e?.status) {
+      return res.status(e?.status).json(e);
+    }
+    return res.status(404).json({
+      message: "Error not found",
     });
   }
 };
@@ -90,13 +162,30 @@ const deleteUser = async (req, res) => {
   }
 };
 
-const getAllUser = async (req, res) => {
+const getAllRoleUser = async (req, res) => {
   try {
-    const response = await UserService.getAllUser();
+    const response = await UserService.getAllRoleUser();
     return res.status(200).json(response);
   } catch (e) {
+    if (e?.status) {
+      return res.status(parseInt(e?.status, 10)).json(e);
+    }
     return res.status(404).json({
-      message: e,
+      message: "Error not found",
+    });
+  }
+};
+
+const getAllRoleTrainee = async (req, res) => {
+  try {
+    const response = await UserService.getAllRoleTrainee();
+    return res.status(200).json(response);
+  } catch (e) {
+    if (e?.status) {
+      return res.status(parseInt(e?.status, 10)).json(e);
+    }
+    return res.status(404).json({
+      message: "Error not found",
     });
   }
 };
@@ -136,9 +225,13 @@ const logoutUser = async (req, res) => {
 module.exports = {
   register,
   login,
-  getAllUser,
+  inviteAccount,
+  getAllRoleUser,
+  getAllRoleTrainee,
   getDetailsUser,
   updateUser,
   deleteUser,
   logoutUser,
+  changeStatus,
+  changeRole,
 };

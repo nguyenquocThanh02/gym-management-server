@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      .email-container {
+        font-family: Arial, sans-serif;
+        max-width: 400px;
+        margin: 20px auto;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        background-color: #f9f9f9;
+      }
+
+      .email-header {
+        text-align: center;
+        margin-bottom: 20px;
+      }
+
+      .email-header h2 {
+        color: #333;
+        font-size: 24px;
+      }
+
+      .email-body {
+        line-height: 1.6;
+        color: #555;
+      }
+
+      .button-container {
+        text-align: center;
+        margin-top: 20px;
+      }
+
+      .button {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #fff;
+        border: 1px solid blue;
+        text-decoration: none;
+        border-radius: 5px;
+        transition: background-color 0.3s;
+      }
+
+      .button:hover {
+        background-color: blue;
+        color: #fff;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="email-container">
+      <div class="email-header">
+        <h2>Welcome to GymMax</h2>
+      </div>
+      <div class="email-body">
+        <p>Click here to register your account with role trainee</p>
+      </div>
+      <div class="button-container">
+        {{#if invite_token}}</p>
+        <a href="http://localhost:3000/register-from-invite/{{invite_token}}" class="button"
+        >Register as trainee</a
+        >
+        {{/if}}
+      </div>
+    </div>
+  </body>
+</html>

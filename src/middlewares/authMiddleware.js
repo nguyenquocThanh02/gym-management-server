@@ -4,18 +4,17 @@ dotenv.config();
 
 // Kiểm tra quyền admin bằng xác thực tooken
 const authAdminMiddleWare = (req, res, next) => {
-  // Nhận tooken của header từ request
   const token = req.headers.token.split(" ")[1];
+  // const userId = req.params.id;
+  // console.log("userId>>> ", userId);
 
-  // Kiểm tra quyền admin
   jwt.verify(token, process.env.ACCESS_TOKEN, function (err, user) {
     if (err) {
       return res.status(401).json({
-        message: "The authemtication1",
+        message: "The authemtication",
         status: "ERROR",
       });
     }
-    console.log(user);
     if (user?.role === "admin") {
       next();
     } else {
@@ -27,20 +26,18 @@ const authAdminMiddleWare = (req, res, next) => {
   });
 };
 
-const authManageMiddleWare = (req, res, next) => {
-  // Nhận tooken của header từ request
+const authTraineeMiddleWare = (req, res, next) => {
   const token = req.headers.token.split(" ")[1];
 
-  // Kiểm tra quyền admin
   jwt.verify(token, process.env.ACCESS_TOKEN, function (err, user) {
     if (err) {
       return res.status(401).json({
-        message: "The authemtication1",
+        message: "The authemtication",
         status: "ERROR",
       });
     }
     console.log(user);
-    if (user?.role === "admin") {
+    if (user?.role === "trainee" || user?.role === "admin") {
       next();
     } else {
       return res.status(404).json({
@@ -53,13 +50,12 @@ const authManageMiddleWare = (req, res, next) => {
 
 // Xác thực user
 const authUserMiddleWare = (req, res, next) => {
-  console.log(req.headers);
-  const token = req.headers?.authorization?.split(" ")[1] || null;
+  const token = req.headers?.token?.split(" ")[1] || null;
 
   if (!token) {
     return res.status(401).json({
       message: "Token is not defined!",
-      status: "ERROR",
+      status: "401",
     });
   }
   const userId = req.params.id;
@@ -67,7 +63,7 @@ const authUserMiddleWare = (req, res, next) => {
     if (err) {
       return res.status(401).json({
         message: "The authemtication",
-        status: "ERROR",
+        status: "401",
       });
     }
     if (user?.id === userId) {
@@ -75,7 +71,7 @@ const authUserMiddleWare = (req, res, next) => {
     } else {
       return res.status(401).json({
         message: "The authemtication",
-        status: "ERROR",
+        status: "401",
       });
     }
   });
@@ -84,4 +80,5 @@ const authUserMiddleWare = (req, res, next) => {
 module.exports = {
   authAdminMiddleWare,
   authUserMiddleWare,
+  authTraineeMiddleWare,
 };

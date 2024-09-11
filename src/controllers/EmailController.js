@@ -4,7 +4,7 @@ const EmailController = async (req, res) => {
   try {
     const { email } = req.body;
     if (email) {
-      const response = await EmailService(email);
+      const response = await EmailService.EmailReset(email);
       return res.json(response);
     }
     return res.json({
