@@ -1,6 +1,7 @@
 const UserRouter = require("./UserRouter");
 const PTRouter = require("./PTRouter");
 const DeviceRouter = require("./DeviceRouter");
+const PackageRouter = require("./PackageRouter");
 
 // const ProductRouter = require("./ProductRouter");
 // const OrderRouter = require("./OrderRouter");
@@ -12,6 +13,7 @@ const routes = (app) => {
   app.use("/api/user", UserRouter);
   app.use("/api/personal-trainer", PTRouter);
   app.use("/api/device", DeviceRouter);
+  app.use("/api/package", PackageRouter);
   // app.use("/api/product", ProductRouter);
   // app.use("/api/order", OrderRouter);
   app.use("/api/email", EmailRouter);

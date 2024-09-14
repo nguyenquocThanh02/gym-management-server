@@ -3,13 +3,16 @@ const mongoose = require("mongoose");
 const packageSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, unique: true },
-    description: { type: String, required: true },
-    benefits: { type: [String], required: true },
+    type: { type: String },
+    sessionWithPT: { type: Number, default: 0 },
+    description: { type: String },
+    suitableFor: { type: String },
     price: { type: Number, required: true },
-    duration: { type: String, required: true },
+    duration: { type: Number, required: true },
     discount: { type: mongoose.Schema.Types.ObjectId, ref: "Discount" },
-    stock: { type: Number, required: true, default: 0 },
-    published: { type: Boolean, default: false },
+    stock: { type: Number, default: null },
+    register: { type: Number, default: 0 },
+    status: { type: String, enum: ["active", "block"], default: "active" },
   },
   {
     timestamps: true,
