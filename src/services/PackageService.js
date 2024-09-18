@@ -46,17 +46,20 @@ const getDetailsPackage = (id) => {
         };
       }
 
-      let discount = null;
-      if (thePackage?.discount) {
-        discount = await Discount.findOne({
-          _id: thePackage?.discount,
-        });
+      const Discounts = await Discount.find({
+        status: "active",
+      });
 
-        if (
-          !checkValidTime(discount.validFrom, discount.validTo) ||
-          discount.status === "stop"
-        ) {
-          discount = null;
+      let applicableDiscounts = [];
+      if (Discounts?.length > 0) {
+        const validDiscounts = Discounts.filter((discount) =>
+          checkValidTime(discount.validFrom, discount.validTo)
+        );
+
+        if (validDiscounts?.length > 0) {
+          applicableDiscounts = validDiscounts.filter((discount) =>
+            discount?.packages.includes(thePackage._id)
+          );
         }
       }
 
@@ -64,8 +67,8 @@ const getDetailsPackage = (id) => {
         status: "200",
         message: "SUCCESS",
         data: {
-          package: thePackage,
-          discount: discount,
+          packages: thePackage,
+          discount: applicableDiscounts,
         },
       });
     } catch (e) {
@@ -76,26 +79,26 @@ const getDetailsPackage = (id) => {
 const getAllPackage = async () => {
   try {
     const packages = await Package.find();
+    const Discounts = await Discount.find({
+      status: "active",
+    });
+    let validDiscounts = [];
+    if (Discounts?.length > 0) {
+      validDiscounts = Discounts.filter((discount) =>
+        checkValidTime(discount.validFrom, discount.validTo)
+      );
+    }
 
+    let applicableDiscounts = [];
     const packageDetailsPromises = packages.map(async (pkg) => {
-      let discount = null;
-      if (pkg.discount) {
-        discount = await Discount.findOne({
-          _id: pkg.discount,
-        });
-
-        console.log(!checkValidTime(discount.validFrom, discount.validTo));
-        if (
-          !checkValidTime(discount.validFrom, discount.validTo) ||
-          discount.status === "stop"
-        ) {
-          discount = null;
-        }
+      if (validDiscounts?.length > 0) {
+        applicableDiscounts = validDiscounts.filter((discount) =>
+          discount?.packages.includes(pkg._id)
+        );
       }
-
       return {
-        ...pkg._doc,
-        discount: discount,
+        packages: { ...pkg._doc },
+        discount: applicableDiscounts,
       };
     });
 
@@ -139,26 +142,29 @@ const getPopularPackage = async () => {
       .sort((a, b) => b.register - a.register)
       .slice(0, 3);
 
+    const Discounts = await Discount.find({
+      status: "active",
+    });
+    let validDiscounts = [];
+    if (Discounts?.length > 0) {
+      validDiscounts = Discounts.filter((discount) =>
+        checkValidTime(discount.validFrom, discount.validTo)
+      );
+    }
+
+    let applicableDiscounts = [];
     const packageDetailsPromises = sortedPackages.map(async (pkg) => {
-      let discount = null;
-      if (pkg.discount) {
-        discount = await Discount.findOne({ _id: pkg.discount });
-
-        if (
-          !checkValidTime(discount.validFrom, discount.validTo) ||
-          discount.status === "stop"
-        ) {
-          discount = null;
-        }
+      if (validDiscounts?.length > 0) {
+        applicableDiscounts = validDiscounts.filter((discount) =>
+          discount?.packages.includes(pkg._id)
+        );
       }
-
       return {
-        ...pkg._doc,
-        discount,
+        packages: { ...pkg._doc },
+        discount: applicableDiscounts,
       };
     });
 
-    // Đợi tất cả các Promise hoàn thành
     const packagesWithDiscounts = await Promise.all(packageDetailsPromises);
 
     return {

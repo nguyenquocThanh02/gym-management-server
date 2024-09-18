@@ -8,13 +8,6 @@ const addDiscount = (newDiscount) => {
       const createdDiscount = await Discount.create(newDiscount);
 
       if (createdDiscount) {
-        newDiscount?.packages?.map(async (item) => {
-          await Package.findByIdAndUpdate(
-            item,
-            { discount: createdDiscount?._id },
-            { new: true }
-          );
-        });
         resolve({
           status: "201",
           message: "SUCCESS",
@@ -69,23 +62,23 @@ const getAllDiscount = () => {
 const getActiveDiscount = () => {
   return new Promise(async (resolve, reject) => {
     try {
-      const now = new Date();
-
       const Discounts = await Discount.find({
         status: "active",
       });
 
-      if (
-        Discounts.length > 0 &&
-        checkValidTime(Discounts[0].validFrom, Discounts[0].validTo)
-      ) {
-        resolve({
-          status: "200",
-          message: "SUCCESS",
-          data: Discounts,
-        });
-      }
+      if (Discounts?.length > 0) {
+        const validDiscounts = Discounts.filter((discount) =>
+          checkValidTime(discount.validFrom, discount.validTo)
+        );
 
+        if (validDiscounts?.length > 0) {
+          resolve({
+            status: "200",
+            message: "SUCCESS",
+            data: validDiscounts,
+          });
+        }
+      }
       resolve({
         status: "204",
         message: "SUCCESS",
@@ -96,24 +89,6 @@ const getActiveDiscount = () => {
   });
 };
 
-const getPopularDiscount = () => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const Discounts = await Discount.find();
-      const sortedDiscounts = Discounts.sort((a, b) => a.register - b.register);
-
-      const topPopularDiscounts = sortedDiscounts.slice(0, 3);
-
-      resolve({
-        status: "200",
-        message: "SUCCESS",
-        data: topPopularDiscounts,
-      });
-    } catch (e) {
-      reject(e);
-    }
-  });
-};
 const updateDiscount = (id, data) => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -206,6 +181,5 @@ module.exports = {
   getDetailsDiscount,
   getAllDiscount,
   getActiveDiscount,
-  getPopularDiscount,
   deleteDiscount,
 };

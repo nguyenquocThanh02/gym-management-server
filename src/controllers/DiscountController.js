@@ -98,20 +98,6 @@ const getActiveDiscount = async (req, res) => {
   }
 };
 
-const getPopularDiscount = async (req, res) => {
-  try {
-    const response = await DiscountService.getPopularDiscount();
-    return res.status(200).json(response);
-  } catch (e) {
-    if (e?.status) {
-      return res.status(e?.status).json(e);
-    }
-    return res.status(404).json({
-      message: "Error not found",
-    });
-  }
-};
-
 const getDetailsDiscount = async (req, res) => {
   try {
     const DiscountId = req.params.id;
@@ -156,7 +142,6 @@ module.exports = {
   getAllDiscount,
   getDetailsDiscount,
   getActiveDiscount,
-  getPopularDiscount,
   updateDiscount,
   changeStatusDiscount,
   deleteDiscount,
