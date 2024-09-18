@@ -9,7 +9,7 @@ const packageSchema = new mongoose.Schema(
     suitableFor: { type: String },
     price: { type: Number, required: true },
     duration: { type: Number, required: true },
-    discount: { type: mongoose.Schema.Types.ObjectId, ref: "Discount" },
+    // discount: { type: mongoose.Schema.Types.ObjectId, ref: "Discount" },
     stock: { type: Number, default: null },
     register: { type: Number, default: 0 },
     status: { type: String, enum: ["active", "block"], default: "active" },
