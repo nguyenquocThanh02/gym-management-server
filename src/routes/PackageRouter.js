@@ -11,6 +11,7 @@ router.post(
   PackageController.deletePackage
 );
 router.get("/get-all", PackageController.getAllPackage);
+router.get("/get-all-name", PackageController.getAllPackageName);
 router.get("/get-popular", PackageController.getPopularPackage);
 router.get("/get-details/:id", PackageController.getDetailsPackage);
 router.put(

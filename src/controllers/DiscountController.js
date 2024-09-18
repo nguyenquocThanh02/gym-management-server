@@ -1,16 +1,16 @@
-const PackageService = require("../services/PackageService");
+const DiscountService = require("../services/DiscountService");
 
-const addPackage = async (req, res) => {
+const addDiscount = async (req, res) => {
   try {
-    const { name, price, duration } = req.body;
-    if (!name || !price || !duration) {
+    const { name, percent, validFrom, validTo } = req.body;
+    if (!name || !percent || !validFrom || !validTo) {
       return res.status(400).json({
         status: "400",
-        message: "The name, price, duration is required",
+        message: "The name, percent, validFrom, validTo is required",
       });
     }
 
-    const response = await PackageService.addPackage(req.body);
+    const response = await DiscountService.addDiscount(req.body);
     return res.status(201).json(response);
   } catch (e) {
     if (e?.status) {
@@ -22,16 +22,16 @@ const addPackage = async (req, res) => {
   }
 };
 
-const updatePackage = async (req, res) => {
+const updateDiscount = async (req, res) => {
   try {
-    const PackageId = req.params.id;
-    if (!PackageId) {
+    const DiscountId = req.params.id;
+    if (!DiscountId) {
       return res.status(400).json({
         status: "400",
-        message: "The Package Id is required",
+        message: "The Discount Id is required",
       });
     }
-    const response = await PackageService.updatePackage(PackageId, req.body);
+    const response = await DiscountService.updateDiscount(DiscountId, req.body);
     return res.status(200).json(response);
   } catch (e) {
     if (e?.status) {
@@ -43,20 +43,20 @@ const updatePackage = async (req, res) => {
   }
 };
 
-const changeStatusPackage = async (req, res) => {
+const changeStatusDiscount = async (req, res) => {
   try {
-    const PackageId = req.params.id;
+    const DiscountId = req.params.id;
     const status = req.params.status;
 
-    if (!PackageId) {
+    if (!DiscountId) {
       return res.status(400).json({
         status: "400",
-        message: "The Package is required",
+        message: "The Discount is required",
       });
     }
 
-    const response = await PackageService.changeStatusPackage(
-      PackageId,
+    const response = await DiscountService.changeStatusDiscount(
+      DiscountId,
       status
     );
     return res.status(200).json(response);
@@ -70,9 +70,9 @@ const changeStatusPackage = async (req, res) => {
   }
 };
 
-const getAllPackage = async (req, res) => {
+const getAllDiscount = async (req, res) => {
   try {
-    const response = await PackageService.getAllPackage();
+    const response = await DiscountService.getAllDiscount();
     return res.status(200).json(response);
   } catch (e) {
     if (e?.status) {
@@ -84,9 +84,9 @@ const getAllPackage = async (req, res) => {
   }
 };
 
-const getAllPackageName = async (req, res) => {
+const getActiveDiscount = async (req, res) => {
   try {
-    const response = await PackageService.getAllPackageName();
+    const response = await DiscountService.getActiveDiscount();
     return res.status(200).json(response);
   } catch (e) {
     if (e?.status) {
@@ -98,9 +98,9 @@ const getAllPackageName = async (req, res) => {
   }
 };
 
-const getPopularPackage = async (req, res) => {
+const getPopularDiscount = async (req, res) => {
   try {
-    const response = await PackageService.getPopularPackage();
+    const response = await DiscountService.getPopularDiscount();
     return res.status(200).json(response);
   } catch (e) {
     if (e?.status) {
@@ -112,16 +112,16 @@ const getPopularPackage = async (req, res) => {
   }
 };
 
-const getDetailsPackage = async (req, res) => {
+const getDetailsDiscount = async (req, res) => {
   try {
-    const PackageId = req.params.id;
-    if (!PackageId) {
+    const DiscountId = req.params.id;
+    if (!DiscountId) {
       return res.status(400).json({
         status: "400",
-        message: "The Package id is required",
+        message: "The Discount id is required",
       });
     }
-    const response = await PackageService.getDetailsPackage(PackageId);
+    const response = await DiscountService.getDetailsDiscount(DiscountId);
     return res.status(200).json(response);
   } catch (e) {
     if (e?.status) {
@@ -133,16 +133,16 @@ const getDetailsPackage = async (req, res) => {
   }
 };
 
-const deletePackage = async (req, res) => {
+const deleteDiscount = async (req, res) => {
   try {
-    const PackageId = req.params.id;
-    if (!PackageId) {
+    const DiscountId = req.params.id;
+    if (!DiscountId) {
       return res.status(200).json({
         status: "ERR",
-        message: "The Package id is required",
+        message: "The Discount id is required",
       });
     }
-    const response = await PackageService.deletePackage(PackageId);
+    const response = await DiscountService.deleteDiscount(DiscountId);
     return res.status(200).json(response);
   } catch (e) {
     return res.status(404).json({
@@ -152,12 +152,12 @@ const deletePackage = async (req, res) => {
 };
 
 module.exports = {
-  addPackage,
-  getAllPackage,
-  getAllPackageName,
-  getDetailsPackage,
-  getPopularPackage,
-  updatePackage,
-  changeStatusPackage,
-  deletePackage,
+  addDiscount,
+  getAllDiscount,
+  getDetailsDiscount,
+  getActiveDiscount,
+  getPopularDiscount,
+  updateDiscount,
+  changeStatusDiscount,
+  deleteDiscount,
 };
