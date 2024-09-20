@@ -3,21 +3,31 @@ const mongoose = require("mongoose");
 const registerTracking = new mongoose.Schema(
   {
     package: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Package",
-      required: true,
+      price: { type: Number },
+      name: { type: String },
+      idPackage: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Package",
+        required: true,
+      },
+    },
+    user: {
+      fullName: { type: String },
+      email: { type: String },
+      phone: { type: String },
+      idUser: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     },
     discount: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Discount",
+      priceDescrease: { type: Number },
+      idDiscount: [{ type: mongoose.Schema.Types.ObjectId, ref: "Discount" }],
     },
     paymentMethod: { type: String },
     totalPrice: { type: Number, required: true },
-    user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
     isPaid: { type: Boolean, default: false },
     paidAt: { type: Date },
     timeStart: { type: Date, required: true },
     timeEnd: { type: Date, required: true },
+    status: { type: String, enum: ["active", "cancel"], default: "active" },
   },
   {
     timestamps: true,

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      .email-container {
+        font-family: Arial, sans-serif;
+        max-width: 400px;
+        margin: 20px auto;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        background-color: #f9f9f9;
+      }
+
+      .email-header {
+        text-align: center;
+        margin-bottom: 20px;
+      }
+
+      .email-img {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 1px solid #ccc;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      }
+
+      .email-header h2 {
+        color: #333;
+        font-size: 24px;
+        text-align: center;
+      }
+
+      .email-body {
+        line-height: 1.6;
+        color: #555;
+      }
+
+      .button-container {
+        text-align: left;
+        margin-top: 20px;
+        margin-left: 5px;
+      }
+
+      .link {
+        display: inline-block;
+        margin: 10px auto;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="email-container">
+      <div class="email-header">
+        <img
+          class="email-img"
+          src="https://firebasestorage.googleapis.com/v0/b/videocallapp-4fbc2.appspot.com/o/images%2Flogo.png?alt=media&token=641d8dec-f390-4810-91e1-ef833ce3d99d"
+          alt="logo"
+        />
+        <h2>You just register tracking successfully a pakage at GymMax</h2>
+      </div>
+      <div class="email-body">
+        <h3>Detail information</h3>
+        {{#if userName}}
+        <p>User: {{userName}}</p>
+        {{/if}}
+        <hr />
+        {{#if namePackage}}
+        <p>Package: {{namePackage}}</p>
+        {{/if}} {{#if timeStart}}
+        <p id="timeStart">Time start: {{timeStart}}</p>
+        {{/if}} {{#if timeEnd}}
+        <p id="timeEnd">Time end: {{timeEnd}}</p>
+        {{/if}}
+        <hr />
+        {{#if totalPrice}}
+        <p>Total Price: {{totalPrice}}</p>
+        {{/if}}
+        <a href="http://localhost:3000/" class="link"
+          >Detail Register Tracking</a
+        >
+      </div>
+    </div>
+  </body>
+</html>
+<script>
+  function formatDate(dateString) {
+    const options = { year: "numeric", month: "2-digit", day: "2-digit" };
+    const date = new Date(dateString);
+    return date.toLocaleDateString("vi-VN", options);
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    const timeStart = document.getElementById("timeStart").textContent;
+    const timeEnd = document.getElementById("timeEnd").textContent;
+
+    document.getElementById("timeStart").textContent = formatDate(timeStart);
+    document.getElementById("timeEnd").textContent = formatDate(timeEnd);
+  });
+</script>

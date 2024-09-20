@@ -1,6 +1,6 @@
 const EmailService = require("../services/EmailService");
 
-const EmailController = async (req, res) => {
+const EmailRegister = async (req, res) => {
   try {
     const { email } = req.body;
     if (email) {
@@ -18,4 +18,4 @@ const EmailController = async (req, res) => {
   }
 };
 
-module.exports = EmailController;
+module.exports = { EmailRegister };

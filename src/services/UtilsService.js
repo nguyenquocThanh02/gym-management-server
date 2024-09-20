@@ -3,7 +3,6 @@ const checkValidTime = (validFrom, validTo) => {
   const timeTo = new Intl.DateTimeFormat("en-GB").format(validTo);
   const now = new Date();
   const timeNow = new Intl.DateTimeFormat("en-GB").format(now);
-  console.log(timeFrom, timeTo, timeNow);
   return timeNow >= timeFrom && timeNow <= timeTo;
 };
 

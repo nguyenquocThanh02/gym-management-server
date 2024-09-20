@@ -5,6 +5,7 @@ const {
   authAdminMiddleWare,
   authUserMiddleWare,
   authTraineeMiddleWare,
+  authUserOrAdminMiddleWare,
 } = require("../middlewares/authMiddleware");
 
 router.post("/register", userController.register);
@@ -27,7 +28,7 @@ router.get(
 );
 router.get(
   "/get-details/:id",
-  authAdminMiddleWare,
+  authUserOrAdminMiddleWare,
   userController.getDetailsUser
 );
 router.put("/update-user/:id", userController.updateUser);

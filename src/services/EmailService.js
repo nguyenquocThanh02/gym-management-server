@@ -28,7 +28,6 @@ const getHtmlContent = async (templateName, variables) => {
     );
 
     const template = handlebars.compile(templateSource);
-
     const htmlContent = template(variables);
 
     return htmlContent;
@@ -39,11 +38,11 @@ const getHtmlContent = async (templateName, variables) => {
 };
 
 // Hàm gửi email chung
-const sendEmail = async (to, invite_token = "", subject, templateName) => {
+const sendEmail = async (to, variables = {}, subject, templateName) => {
   const transporter = createTransporter();
 
   // Thay vì truyền trực tiếp tên template, truyền thêm biến invite_token
-  const htmlContent = await getHtmlContent(templateName, { invite_token });
+  const htmlContent = await getHtmlContent(templateName, variables);
 
   const info = await transporter.sendMail({
     from: '"GymMax" <2002nguyenquocthanh@gmail.com>', // sender address
@@ -59,7 +58,7 @@ const sendEmail = async (to, invite_token = "", subject, templateName) => {
 const EmailRegister = async (email, invite_token) => {
   return sendEmail(
     email,
-    invite_token,
+    { invite_token: invite_token },
     "Welcome to GymMax!",
     "emailRegister.html"
   );
@@ -70,9 +69,15 @@ const EmailReset = async (email) => {
   return sendEmail(email, "Password Reset Request", "emailReset.html");
 };
 
-// Hàm gửi email xác nhận
-const EmailConfirm = async (email) => {
-  return sendEmail(email, "Email Confirmation", "emailConfirm.html");
+// Hàm gửi email xác nhận đã đăng ký gói tập
+const EmailConfirm = async (email, detailTracking) => {
+  console.log("fff", detailTracking);
+  return sendEmail(
+    email,
+    detailTracking,
+    "Email Confirmation",
+    "emailConfirm.html"
+  );
 };
 
 module.exports = {

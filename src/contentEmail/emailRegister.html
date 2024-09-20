@@ -60,9 +60,11 @@
         <p>Click here to register your account with role trainee</p>
       </div>
       <div class="button-container">
-        {{#if invite_token}}</p>
-        <a href="http://localhost:3000/register-from-invite/{{invite_token}}" class="button"
-        >Register as trainee</a
+        {{#if invite_token}}
+        <a
+          href="http://localhost:3000/register-from-invite/{{invite_token}}"
+          class="button"
+          >Register as trainee</a
         >
         {{/if}}
       </div>
