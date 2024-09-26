@@ -111,7 +111,6 @@ const updateDiscount = (id, data) => {
         };
       }
 
-      console.log("date: ", data?.validFrom);
       const updatedDiscount = await Discount.findByIdAndUpdate(id, data, {
         new: true,
       });

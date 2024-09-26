@@ -5,8 +5,6 @@ dotenv.config();
 // Kiểm tra quyền admin bằng xác thực tooken
 const authAdminMiddleWare = (req, res, next) => {
   const token = req.headers.token.split(" ")[1];
-  // const userId = req.params.id;
-  // console.log("userId>>> ", userId);
 
   jwt.verify(token, process.env.ACCESS_TOKEN, function (err, user) {
     if (err) {
@@ -77,8 +75,39 @@ const authUserMiddleWare = (req, res, next) => {
   });
 };
 
+const authUserOrAdminMiddleWare = (req, res, next) => {
+  const token = req.headers?.token?.split(" ")[1] || null;
+
+  if (!token) {
+    return res.status(401).json({
+      message: "Token is not defined!",
+      status: "401",
+    });
+  }
+  const userId = req.params.id;
+  jwt.verify(token, process.env.ACCESS_TOKEN, function (err, user) {
+    if (err) {
+      return res.status(401).json({
+        message: "The authemtication",
+        status: "401",
+      });
+    }
+    if (user?.id === userId) {
+      next();
+    } else if (user?.role === "admin") {
+      next();
+    } else {
+      return res.status(404).json({
+        message: "Permition admin role",
+        status: "ERROR",
+      });
+    }
+  });
+};
+
 module.exports = {
   authAdminMiddleWare,
   authUserMiddleWare,
   authTraineeMiddleWare,
+  authUserOrAdminMiddleWare,
 };

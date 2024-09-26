@@ -177,8 +177,6 @@ const inviteAccount = (email) => {
         email: email,
       });
 
-      console.log(checkUserEmail);
-
       if (checkUserEmail !== null) {
         if (checkUserEmail?.role === "user") {
           await User.findByIdAndUpdate(
@@ -199,9 +197,7 @@ const inviteAccount = (email) => {
         const invite_token = await genneralTokenInvite({
           email: email,
         });
-        console.log(invite_token);
         const response = await EmailService.EmailRegister(email, invite_token);
-        // return res.json(response);
 
         resolve({
           status: "200",

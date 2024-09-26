@@ -8,8 +8,6 @@ const addPT = (newPT) => {
         "contactInfor.phone": contactInfor?.phone,
       });
 
-      console.log("?>>>", checkExistPhone, contactInfor.phone);
-
       if (checkExistPhone !== null) {
         reject({
           status: "400",
