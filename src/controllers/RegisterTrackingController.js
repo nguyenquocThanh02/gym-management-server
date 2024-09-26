@@ -28,21 +28,25 @@ const addRegisterTracking = async (req, res) => {
     });
   }
 };
-const updateOrder = async (req, res) => {
+const paymentRegisterTracking = async (req, res) => {
   try {
-    const orderId = req.params.id;
-    const data = req.params.state;
-    if (!orderId) {
-      return res.status(200).json({
-        status: "ERR",
-        message: "The productId is required",
+    const registerTrackingId = req.params.id;
+    if (!registerTrackingId) {
+      return res.status(400).json({
+        status: "400",
+        message: "The id is required",
       });
     }
-    const response = await OrderService.updateOrder(orderId, data);
+    const response = await RegisterTrackingService.paymentRegisterTracking(
+      registerTrackingId
+    );
     return res.status(200).json(response);
   } catch (e) {
+    if (e?.status) {
+      return res.status(e?.status).json(e);
+    }
     return res.status(404).json({
-      message: e,
+      message: "Error not found",
     });
   }
 };
@@ -69,41 +73,49 @@ const getAllRegisterTrackingOfUser = async (req, res) => {
   }
 };
 
-const getDetailsOrder = async (req, res) => {
+const getDetailsRegisterTracking = async (req, res) => {
   try {
     const orderId = req.params.id;
     if (!orderId) {
-      return res.status(200).json({
-        status: "ERR",
-        message: "The userId is required",
+      return res.status(400).json({
+        status: "400",
+        message: "The id is required",
       });
     }
-    const response = await OrderService.getOrderDetails(orderId);
+    const response = await RegisterTrackingService.getDetailsRegisterTracking(
+      orderId
+    );
     return res.status(200).json(response);
   } catch (e) {
-    // console.log(e)
+    if (e?.status) {
+      return res.status(e?.status).json(e);
+    }
     return res.status(404).json({
-      message: e,
+      message: "Error not found",
     });
   }
 };
 
-const cancelOrderDetails = async (req, res) => {
+const cancelRegisterTracking = async (req, res) => {
   try {
-    const data = req.body.orderItems;
-    const orderId = req.body.orderId;
+    // const data = req.body.orderItems;
+    const orderId = req.params.id;
     if (!orderId) {
       return res.status(200).json({
         status: "ERR",
         message: "The orderId is required",
       });
     }
-    const response = await OrderService.cancelOrderDetails(orderId, data);
+    const response = await RegisterTrackingService.cancelRegisterTracking(
+      orderId
+    );
     return res.status(200).json(response);
   } catch (e) {
-    // console.log(e)
+    if (e?.status) {
+      return res.status(e?.status).json(e);
+    }
     return res.status(404).json({
-      message: e,
+      message: "Error not found",
     });
   }
 };
@@ -124,9 +136,9 @@ const getAllRegisterTracking = async (req, res) => {
 
 module.exports = {
   addRegisterTracking,
-  updateOrder,
+  paymentRegisterTracking,
   getAllRegisterTrackingOfUser,
-  getDetailsOrder,
-  cancelOrderDetails,
+  getDetailsRegisterTracking,
+  cancelRegisterTracking,
   getAllRegisterTracking,
 };

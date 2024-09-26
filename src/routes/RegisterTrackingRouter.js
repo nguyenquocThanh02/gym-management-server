@@ -8,14 +8,19 @@ const {
 } = require("../middlewares/authMiddleware");
 
 router.post("/add", RegisterTracking.addRegisterTracking);
-// router.put("/update/:id/:state", RegisterTracking.updateOrder);
+router.put(
+  "/payment/:id",
+  authAdminMiddleWare,
+  RegisterTracking.paymentRegisterTracking
+);
 
 // // router.get('/get-details-order/:id', RegisterTracking.getDetailsOrder)
-// router.post(
-//   "/cancel/:id",
-//   authUserOrAdminMiddleWare,
-//   RegisterTracking.cancelRegisterTracking
-// );
+router.put("/cancel/:id", RegisterTracking.cancelRegisterTracking);
+router.get(
+  "/get-details/:id",
+  authUserOrAdminMiddleWare,
+  RegisterTracking.getDetailsRegisterTracking
+);
 router.get(
   "/get-all-of-user/:id",
   authUserOrAdminMiddleWare,

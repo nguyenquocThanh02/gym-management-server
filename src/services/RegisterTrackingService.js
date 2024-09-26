@@ -1,6 +1,7 @@
 const RegisterTracking = require("../models/RegisterTrackingModal");
 const Package = require("../models/PackageModal");
 const EmailService = require("../services/EmailService");
+const { checkTimeCancel } = require("./UtilsService");
 
 const addRegisterTracking = (newTracking) => {
   return new Promise(async (resolve, reject) => {
@@ -51,7 +52,6 @@ const addRegisterTracking = (newTracking) => {
           data: createdRegisterTracking,
         });
       } catch (err) {
-        console.log("herrr");
         await Package.findByIdAndUpdate(package?.idPackage, {
           $inc: { stock: 1 },
         });
@@ -66,26 +66,16 @@ const addRegisterTracking = (newTracking) => {
   });
 };
 
-const updateregisterTracking = (id, data) => {
+const paymentRegisterTracking = (id) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const checkregisterTracking = await registerTracking.findOne({
-        _id: id,
-      });
-      if (checkregisterTracking === null) {
-        resolve({
-          status: "ERR",
-          message: "The product is not defined",
-        });
-      }
-
-      const updatedregisterTracking = await registerTracking.findByIdAndUpdate(
+      const updatedregisterTracking = await RegisterTracking.findByIdAndUpdate(
         id,
-        { isDelivered: data },
+        { isPaid: true, paidAt: new Date(Date.now()) },
         { new: true }
       );
       resolve({
-        status: "OK",
+        status: "200",
         message: "SUCCESS",
         data: updatedregisterTracking,
       });
@@ -99,7 +89,7 @@ const getAllRegisterTrackingOfUser = (id) => {
   return new Promise(async (resolve, reject) => {
     try {
       const registerTracking = await RegisterTracking.find({
-        "user?.idUser": id,
+        "user.idUser": id,
       }).sort({ createdAt: -1, updatedAt: -1 });
       if (registerTracking === null) {
         throw {
@@ -119,21 +109,21 @@ const getAllRegisterTrackingOfUser = (id) => {
   });
 };
 
-const getregisterTrackingDetails = (id) => {
+const getDetailsRegisterTracking = (id) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const registerTracking = await registerTracking.findById({
+      const registerTracking = await RegisterTracking.findById({
         _id: id,
       });
       if (registerTracking === null) {
-        resolve({
-          status: "ERR",
+        throw {
+          status: "403",
           message: "The registerTracking is not defined",
-        });
+        };
       }
 
       resolve({
-        status: "OK",
+        status: "200",
         message: "SUCESSS",
         data: registerTracking,
       });
@@ -143,71 +133,116 @@ const getregisterTrackingDetails = (id) => {
   });
 };
 
-const cancelregisterTrackingDetails = (id, data) => {
+const cancelRegisterTracking = (id) => {
   return new Promise(async (resolve, reject) => {
     try {
-      let registerTracking = [];
-      const promises = data.map(async (registerTracking) => {
-        const productData = await Product.findOneAndUpdate(
-          {
-            _id: registerTracking.product,
-            selled: { $gte: registerTracking.amount },
-          },
-          {
-            $inc: {
-              countInStock: +registerTracking.amount,
-              selled: -registerTracking.amount,
-            },
-          },
-          { new: true }
-        );
-        if (productData) {
-          registerTracking = await registerTracking.findByIdAndDelete(id);
-          if (registerTracking === null) {
-            resolve({
-              status: "ERR",
-              message: "The registerTracking is not defined",
-            });
-          }
-        } else {
-          return {
-            status: "OK",
-            message: "ERR",
-            id: registerTracking.product,
-          };
-        }
-      });
-      const results = await Promise.all(promises);
-      const newData = results && results[0] && results[0].id;
-
-      if (newData) {
-        resolve({
-          status: "ERR",
-          message: `San pham voi id: ${newData} khong ton tai`,
+      const theRT = await RegisterTracking.findOne({ _id: id });
+      if (!theRT) {
+        return reject({
+          status: 403,
+          message: "The register tracking is not defined",
         });
       }
+
+      if (theRT.paidAt || !checkTimeCancel(theRT.timeStart)) {
+        throw {
+          status: 403,
+          message: "Can not cancel if order paid or pass time start",
+        };
+      }
+      const thePackage = await Package.findOneAndUpdate(
+        { _id: theRT.package.idPackage },
+        {
+          $inc: {
+            stock: 1,
+            register: -1,
+          },
+        },
+        { new: true }
+      );
+
+      if (!thePackage) {
+        return resolve({
+          status: 200,
+          message: "Package not updated, but success",
+        });
+      }
+
+      const deletedRT = await RegisterTracking.findByIdAndDelete(id);
+      if (!deletedRT) {
+        return reject({
+          status: 403,
+          message: "Failed to delete the register tracking",
+        });
+      }
+
       resolve({
-        status: "OK",
-        message: "success",
-        data: registerTracking,
+        status: 200,
+        message: "Success",
       });
     } catch (e) {
-      reject(e);
+      reject({
+        status: e.status || 500,
+        message: e.message || "An unexpected error occurred.",
+      });
     }
   });
 };
 
-const getAllregisterTracking = () => {
+// const getAllRegisterTracking = () => {
+//   return new Promise(async (resolve, reject) => {
+//     try {
+//       const allRegisterTrackings = await RegisterTracking.find().sort({
+//         createdAt: -1,
+//         updatedAt: -1,
+//       });
+//       resolve({
+//         status: "200",
+//         message: "Success",
+//         data: allRegisterTrackings,
+//       });
+//     } catch (e) {
+//       reject(e);
+//     }
+//   });
+// };
+
+const getAllRegisterTracking = () => {
   return new Promise(async (resolve, reject) => {
     try {
       const allRegisterTrackings = await RegisterTracking.find().sort({
         createdAt: -1,
         updatedAt: -1,
       });
+
+      const flattenedData = allRegisterTrackings.map((tracking) => ({
+        _id: tracking._id,
+        packageName: tracking.package.name,
+        packageId: tracking.package.idPackage,
+        packagePrice: tracking.package.price,
+        userFullName: tracking.user.fullName,
+        userEmail: tracking.user.email,
+        userId: tracking.user.idUser,
+        userPhone: tracking.user.phone,
+        payerName: tracking?.payment?.payerName,
+        payerEmail: tracking?.payment?.payerEmail,
+        payerId: tracking?.payment?.payerId,
+        orderId: tracking?.payment?.orderId,
+        paidAt: tracking?.paidAt,
+        paymentMethod: tracking.paymentMethod,
+        totalPrice: tracking.totalPrice,
+        isPaid: tracking.isPaid,
+        timeStart: tracking.timeStart,
+        timeEnd: tracking.timeEnd,
+        status: tracking.status,
+        createdAt: tracking.createdAt,
+        updatedAt: tracking.updatedAt,
+      }));
+
       resolve({
         status: "200",
         message: "Success",
-        data: allRegisterTrackings,
+        data: flattenedData,
       });
     } catch (e) {
       reject(e);
@@ -217,9 +252,9 @@ const getAllregisterTracking = () => {
 
 module.exports = {
   addRegisterTracking,
-  updateregisterTracking,
+  paymentRegisterTracking,
   getAllRegisterTrackingOfUser,
-  getregisterTrackingDetails,
-  cancelregisterTrackingDetails,
-  getAllregisterTracking,
+  getDetailsRegisterTracking,
+  cancelRegisterTracking,
+  getAllRegisterTracking,
 };
