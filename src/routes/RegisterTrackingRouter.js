@@ -32,4 +32,16 @@ router.get(
   RegisterTracking.getAllRegisterTracking
 );
 
+router.get(
+  "/get-chart-date/:date",
+  authAdminMiddleWare,
+  RegisterTracking.getChartDate
+);
+
+router.get(
+  "/get-chart-month/:month",
+  authAdminMiddleWare,
+  RegisterTracking.getChartMonth
+);
+
 module.exports = router;

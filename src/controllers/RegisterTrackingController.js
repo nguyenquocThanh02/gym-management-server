@@ -101,8 +101,8 @@ const cancelRegisterTracking = async (req, res) => {
     // const data = req.body.orderItems;
     const orderId = req.params.id;
     if (!orderId) {
-      return res.status(200).json({
-        status: "ERR",
+      return res.status(400).json({
+        status: "400",
         message: "The orderId is required",
       });
     }
@@ -134,6 +134,42 @@ const getAllRegisterTracking = async (req, res) => {
   }
 };
 
+const getChartDate = async (req, res) => {
+  try {
+    const theDate = req.params.date;
+    if (!theDate) {
+      return res.status(400).json({ message: "Date is required." });
+    }
+    const data = await RegisterTrackingService.getChartDate(theDate);
+    return res.status(200).json(data);
+  } catch (e) {
+    if (e?.status) {
+      return res.status(e?.status).json(e);
+    }
+    return res.status(404).json({
+      message: "Error not found",
+    });
+  }
+};
+
+const getChartMonth = async (req, res) => {
+  try {
+    const theMonth = req.params.month;
+    if (!theMonth) {
+      return res.status(400).json({ message: "Time from and to is required." });
+    }
+    const data = await RegisterTrackingService.getChartMonth(theMonth);
+    return res.status(200).json(data);
+  } catch (e) {
+    if (e?.status) {
+      return res.status(e?.status).json(e);
+    }
+    return res.status(404).json({
+      message: "Error not found",
+    });
+  }
+};
+
 module.exports = {
   addRegisterTracking,
   paymentRegisterTracking,
@@ -141,4 +177,6 @@ module.exports = {
   getDetailsRegisterTracking,
   cancelRegisterTracking,
   getAllRegisterTracking,
+  getChartDate,
+  getChartMonth,
 };
