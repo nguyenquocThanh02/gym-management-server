@@ -250,6 +250,107 @@ const getAllRegisterTracking = () => {
   });
 };
 
+const getChartDate = (theDate) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const startDate = new Date(theDate);
+      const endDate = new Date(startDate);
+      endDate.setDate(endDate.getDate() + 1);
+
+      const registerTrackings = await RegisterTracking.find({
+        paidAt: {
+          $gte: startDate,
+          $lt: endDate,
+        },
+      });
+
+      const totalPricePaypal = registerTrackings.reduce((accumulator, item) => {
+        if (item.paymentMethod === "paypal") {
+          return accumulator + item.totalPrice;
+        }
+        return accumulator;
+      }, 0);
+
+      const totalPriceOffline = registerTrackings.reduce(
+        (accumulator, item) => {
+          if (item.paymentMethod === "offline") {
+            return accumulator + item.totalPrice;
+          }
+          return accumulator;
+        },
+        0
+      );
+
+      resolve({
+        status: "200",
+        message: "Success",
+        data: {
+          paypal: totalPricePaypal,
+          offline: totalPriceOffline,
+        },
+      });
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+const getChartMonth = (theMonth) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const [year, month] = theMonth.split("-").map(Number);
+      const daysInMonth = new Date(year, month, 0).getDate();
+
+      const startDate = new Date(year, month - 1, 1);
+      const endDate = new Date(year, month, 1);
+
+      const registerTrackings = await RegisterTracking.find({
+        paidAt: {
+          $gte: startDate,
+          $lt: endDate,
+        },
+        isPaid: true,
+      });
+
+      const dailyData = {};
+
+      registerTrackings.forEach((tracking) => {
+        const dateKey = tracking.paidAt.toISOString().split("T")[0];
+        const isPaypal = tracking.paymentMethod === "paypal";
+
+        if (!dailyData[dateKey]) {
+          dailyData[dateKey] = { date: dateKey, paypal: 0, offline: 0 };
+        }
+
+        if (isPaypal) {
+          dailyData[dateKey].paypal += tracking.totalPrice;
+        } else {
+          dailyData[dateKey].offline += tracking.totalPrice;
+        }
+      });
+
+      const chartData = [];
+      for (let day = 2; day <= daysInMonth + 1; day++) {
+        const date = new Date(year, month - 1, day);
+        const formattedDate = date.toISOString().split("T")[0];
+
+        chartData.push({
+          date: formattedDate,
+          paypal: dailyData[formattedDate]?.paypal || 0,
+          offline: dailyData[formattedDate]?.offline || 0,
+        });
+      }
+
+      resolve({
+        status: 200,
+        message: "Success",
+        data: chartData,
+      });
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
 module.exports = {
   addRegisterTracking,
   paymentRegisterTracking,
@@ -257,4 +358,6 @@ module.exports = {
   getDetailsRegisterTracking,
   cancelRegisterTracking,
   getAllRegisterTracking,
+  getChartDate,
+  getChartMonth,
 };
