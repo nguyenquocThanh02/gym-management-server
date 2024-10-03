@@ -1,3 +1,4 @@
+const { text } = require("body-parser");
 const mongoose = require("mongoose");
 
 const ArticleSchema = new mongoose.Schema(
@@ -5,12 +6,19 @@ const ArticleSchema = new mongoose.Schema(
     title: { type: String, required: true },
     coverImage: { type: String },
     content: { type: String, required: true },
-    author: { type: String },
-    tags: [{ type: String }],
-    publishedAt: { type: Date },
+    discription: { type: String },
+    author: {
+      name: { type: String },
+      id: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    },
+    status: {
+      type: String,
+      enum: ["draft", "reviewing", "published"],
+      default: "reviewing",
+    },
   },
   {
-    timestamps: { createdAt: "createdAt", updatedAt: "updatedAt" },
+    timestamps: true,
   }
 );
 
