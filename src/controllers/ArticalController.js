@@ -55,6 +55,22 @@ const getNewArticals = async (req, res) => {
     });
   }
 };
+const getOfUser = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const status = req.params.status;
+
+    const response = await ArticalService.getOfUser(id, status);
+    return res.status(200).json(response);
+  } catch (e) {
+    if (e?.status) {
+      return res.status(e?.status).json(e);
+    }
+    return res.status(404).json({
+      message: "Error not found",
+    });
+  }
+};
 
 const getDetailsArtical = async (req, res) => {
   try {
@@ -107,6 +123,7 @@ const deleteArtical = async (req, res) => {
 module.exports = {
   addNewArtical,
   getAllArticals,
+  getOfUser,
   getNewArticals,
   getDetailsArtical,
   deleteArtical,

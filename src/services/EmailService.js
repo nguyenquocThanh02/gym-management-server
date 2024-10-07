@@ -65,8 +65,13 @@ const EmailRegister = async (email, invite_token) => {
 };
 
 // Hàm gửi email đặt lại mật khẩu
-const EmailReset = async (email) => {
-  return sendEmail(email, "Password Reset Request", "emailReset.html");
+const EmailReset = async (email, reset_token) => {
+  return sendEmail(
+    email,
+    { reset_token: reset_token },
+    "Reset Password",
+    "emailReset.html"
+  );
 };
 
 // Hàm gửi email xác nhận đã đăng ký gói tập

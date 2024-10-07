@@ -20,6 +20,15 @@
         margin-bottom: 20px;
       }
 
+      .email-img {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 1px solid #ccc;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      }
+
       .email-header h2 {
         color: #333;
         font-size: 24px;
@@ -27,6 +36,7 @@
 
       .email-body {
         line-height: 1.6;
+        text-align: center;
         color: #555;
       }
 
@@ -54,6 +64,11 @@
   <body>
     <div class="email-container">
       <div class="email-header">
+        <img
+          class="email-img"
+          src="https://firebasestorage.googleapis.com/v0/b/videocallapp-4fbc2.appspot.com/o/images%2Flogo.png?alt=media&token=641d8dec-f390-4810-91e1-ef833ce3d99d"
+          alt="logo"
+        />
         <h2>Welcome to GymMax</h2>
       </div>
       <div class="email-body">

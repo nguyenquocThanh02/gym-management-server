@@ -7,6 +7,7 @@ const {
   genneralAccessToken,
   genneralRefreshToken,
   genneralTokenInvite,
+  genneralTokenResetPasword,
 } = require("./JwtService");
 
 const register = (newUser) => {
@@ -84,6 +85,54 @@ const register = (newUser) => {
     }
   });
 };
+const createPassword = (data) => {
+  return new Promise(async (resolve, reject) => {
+    const { password, resetToken } = data;
+    try {
+      jwt.verify(
+        resetToken,
+        process.env.RESET_TOKEN,
+        async function (err, infor) {
+          if (err) {
+            reject({
+              status: 401,
+              message: "Authentication",
+            });
+          }
+
+          if (infor?.email) {
+            const theUser = await User.findOne({
+              email: infor?.email,
+            });
+
+            if (!theUser) {
+              return reject({
+                status: "400",
+                message: "The email does not exist",
+              });
+            }
+
+            const hash = bcrypt.hashSync(password, 10);
+
+            await User.findOneAndUpdate(
+              { email: infor?.email },
+              { password: hash },
+              { new: true }
+            );
+
+            resolve({
+              status: 200,
+              message: "SUCCESS",
+              data: { role: theUser?.role },
+            });
+          }
+        }
+      );
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
 
 const login = (userLogin, role) => {
   return new Promise(async (resolve, reject) => {
@@ -123,6 +172,13 @@ const login = (userLogin, role) => {
           });
       }
 
+      if (role === "trainee") {
+        if (checkUser.role !== "admin" && checkUser.role !== "trainee")
+          reject({
+            status: "405",
+            message: "You don't have trainee permit",
+          });
+      }
       const access_token = await genneralAccessToken({
         id: checkUser.id,
         role: checkUser.role,
@@ -210,6 +266,35 @@ const inviteAccount = (email) => {
     }
   });
 };
+const reset = (email) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const checkUserEmail = await User.findOne({
+        email: email,
+      });
+
+      if (checkUserEmail === null) {
+        throw {
+          status: 403,
+          message: "The email is not exist",
+        };
+      }
+
+      const reset_token = await genneralTokenResetPasword({
+        email: email,
+      });
+      const response = await EmailService.EmailReset(email, reset_token);
+
+      resolve({
+        status: "200",
+        message: "SUCCESS",
+        data: response,
+      });
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
 
 const changeRole = (id, role) => {
   return new Promise(async (resolve, reject) => {
@@ -234,6 +319,43 @@ const changeRole = (id, role) => {
     }
   });
 };
+
+const changePassword = (id, data) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const checkUser = await User.findOne({
+        _id: id,
+      });
+      if (checkUser === null) {
+        throw {
+          status: 400,
+          message: "The account is not defined",
+        };
+      }
+      const comparePassword = bcrypt.compareSync(
+        data?.password,
+        checkUser.password
+      );
+      if (!comparePassword) {
+        throw {
+          status: 400,
+          message: "The password is incorrect",
+        };
+      }
+
+      const hash = bcrypt.hashSync(data?.newPassword, 10);
+
+      await User.findByIdAndUpdate(id, { password: hash }, { new: true });
+      resolve({
+        status: 200,
+        message: "Change password success",
+      });
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
 const getDetailsUser = (id) => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -312,23 +434,28 @@ const updateUser = (id, data) => {
         };
       }
 
-      const checkUserEmail = await User.findOne({
-        email: email,
-      });
-      const checkUserAccountName = await User.findOne({
-        accountName: accountName,
-      });
-      if (checkUserEmail !== null) {
-        throw {
-          status: "400",
-          message: "The email is already exist",
-        };
+      if (accountName !== checkUser?.accountName) {
+        const checkUserAccountName = await User.findOne({
+          accountName: accountName,
+        });
+        if (checkUserAccountName !== null) {
+          throw {
+            status: "400",
+            message: "The account name is already exist",
+          };
+        }
       }
-      if (checkUserAccountName !== null) {
-        throw {
-          status: "400",
-          message: "The account name is already exist",
-        };
+
+      if (email !== checkUser?.email) {
+        const checkUserEmail = await User.findOne({
+          email: email,
+        });
+        if (checkUserEmail !== null) {
+          throw {
+            status: "400",
+            message: "The email is already exist",
+          };
+        }
       }
 
       const updatedUser = await User.findByIdAndUpdate(id, data, { new: true });
@@ -371,6 +498,8 @@ module.exports = {
   register,
   login,
   inviteAccount,
+  reset,
+  createPassword,
   updateUser,
   deleteUser,
   getDetailsUser,
@@ -378,4 +507,5 @@ module.exports = {
   getAllRoleTrainee,
   changeStatus,
   changeRole,
+  changePassword,
 };

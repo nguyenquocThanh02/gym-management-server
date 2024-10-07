@@ -19,7 +19,7 @@ const addNewArtical = (newArtical) => {
         title: title,
         coverImage: coverImage,
         content: content,
-        description: description || "",
+        description: description,
         author: {
           name: checkExistUser?.accountName,
           id: userId,
@@ -43,6 +43,33 @@ const getAllArticals = (statusGet) => {
   return new Promise(async (resolve, reject) => {
     try {
       const query = statusGet ? { status: statusGet } : {};
+      const articals = await Artical.find(query).select({
+        _id: 1,
+        title: 1,
+        coverImage: 1,
+        description: 1,
+        author: {
+          name: 1,
+        },
+        updatedAt: 1,
+        createdAt: 1,
+      });
+
+      resolve({
+        status: 200,
+        message: "Success",
+        data: articals,
+      });
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
+const getOfUser = (id, status) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const query = status ? { "author.id": id, status: status } : { _id, id };
       const articals = await Artical.find(query).select({
         _id: 1,
         title: 1,
@@ -177,4 +204,5 @@ module.exports = {
   getNewArticals,
   deleteArtical,
   changeStatusArtical,
+  getOfUser,
 };

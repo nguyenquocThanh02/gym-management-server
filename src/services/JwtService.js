@@ -70,9 +70,22 @@ const genneralTokenInvite = async (payload) => {
 
   return access_token;
 };
+
+const genneralTokenResetPasword = async (payload) => {
+  const access_token = jwt.sign(
+    {
+      ...payload,
+    },
+    process.env.RESET_TOKEN,
+    { expiresIn: "300s" }
+  );
+
+  return access_token;
+};
 module.exports = {
   genneralAccessToken,
   genneralRefreshToken,
   refreshTokenJwtService,
   genneralTokenInvite,
+  genneralTokenResetPasword,
 };
