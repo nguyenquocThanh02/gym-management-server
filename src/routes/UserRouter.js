@@ -10,6 +10,8 @@ const {
 
 router.post("/register", userController.register);
 router.post("/login/:role", userController.login);
+router.post("/reset/:email", userController.reset);
+router.post("/create-password", userController.createPassword);
 router.post(
   "/invite-account/:email",
   authAdminMiddleWare,
@@ -31,7 +33,7 @@ router.get(
   authUserOrAdminMiddleWare,
   userController.getDetailsUser
 );
-router.put("/update-user/:id", userController.updateUser);
+router.put("/update-user/:id", authUserMiddleWare, userController.updateUser);
 router.put(
   "/change-status/:id/:status",
   authAdminMiddleWare,
@@ -41,6 +43,11 @@ router.put(
   "/change-role/:id/:role",
   authAdminMiddleWare,
   userController.changeRole
+);
+router.put(
+  "/change-password/:id",
+  authUserMiddleWare,
+  userController.changePassword
 );
 router.put("/update/:id", authUserMiddleWare, userController.updateUser);
 router.delete(

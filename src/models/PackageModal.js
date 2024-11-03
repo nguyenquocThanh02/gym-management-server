@@ -4,7 +4,11 @@ const packageSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, unique: true },
     type: { type: String },
-    sessionWithPT: { type: Number, default: 0 },
+    sessionWithPT: {
+      type: String,
+      enum: ["no", "half", "full"],
+      default: "no",
+    },
     description: { type: String },
     suitableFor: { type: String },
     price: { type: Number, required: true },

@@ -1,7 +1,12 @@
 const RegisterTracking = require("../models/RegisterTrackingModal");
 const Package = require("../models/PackageModal");
+const User = require("../models/UserModel");
+const Artical = require("../models/ArticalModal");
 const EmailService = require("../services/EmailService");
 const { checkTimeCancel } = require("./UtilsService");
+// const {
+//   getAllForCalendar,
+// } = require("../controllers/RegisterTrackingController");
 
 const addRegisterTracking = (newTracking) => {
   return new Promise(async (resolve, reject) => {
@@ -25,7 +30,7 @@ const addRegisterTracking = (newTracking) => {
       if (!packageData) {
         return reject({
           status: "403",
-          message: "Package is unavailable.",
+          message: "Gói tập không có sẵn",
         });
       }
 
@@ -34,6 +39,13 @@ const addRegisterTracking = (newTracking) => {
           newTracking
         );
         try {
+          if (user?.idUser) {
+            await User.findOneAndUpdate(
+              { email: user.email },
+              { core: 4 },
+              { new: true }
+            );
+          }
           await EmailService.EmailConfirm(user?.email, {
             namePackage: package?.name,
             totalPrice: totalPrice,
@@ -78,6 +90,28 @@ const paymentRegisterTracking = (id) => {
         status: "200",
         message: "SUCCESS",
         data: updatedregisterTracking,
+      });
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
+const addPTtoRT = (id, idPT) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      console.log(id, idPT);
+      const updateRT = await RegisterTracking.findByIdAndUpdate(
+        id,
+        { idPT: idPT },
+        { new: true }
+      );
+      console.log(updateRT);
+
+      resolve({
+        status: "200",
+        message: "SUCCESS",
+        data: updateRT,
       });
     } catch (e) {
       reject(e);
@@ -132,11 +166,40 @@ const getDetailsRegisterTracking = (id) => {
     }
   });
 };
+const getDetailsByName = (name) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const registerTracking = await RegisterTracking.find({
+        "user.fullName": name,
+      });
+      if (registerTracking?.length < 1) {
+        registerTracking = await RegisterTracking.findById(name);
+      }
+
+      console.log(registerTracking);
+      if (registerTracking?.length < 1) {
+        throw {
+          status: "403",
+          message: "The registerTracking is not defined",
+        };
+      }
+
+      resolve({
+        status: 200,
+        message: "SUCCESS",
+        data: registerTracking,
+      });
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
 
 const cancelRegisterTracking = (id) => {
   return new Promise(async (resolve, reject) => {
     try {
       const theRT = await RegisterTracking.findOne({ _id: id });
+      console.log(theRT);
       if (!theRT) {
         return reject({
           status: 403,
@@ -147,7 +210,8 @@ const cancelRegisterTracking = (id) => {
       if (theRT.paidAt || !checkTimeCancel(theRT.timeStart)) {
         throw {
           status: 403,
-          message: "Can not cancel if order paid or pass time start",
+          message:
+            "Bạn không thể huỷ gói tập khi đã thanh toán hoặc vượt quá 2 ngày",
         };
       }
       const thePackage = await Package.findOneAndUpdate(
@@ -176,6 +240,13 @@ const cancelRegisterTracking = (id) => {
         });
       }
 
+      if (theRT?.user?.idUser) {
+        await User.findOneAndUpdate(
+          { email: theRT?.user?.email },
+          { core: 0 },
+          { new: true }
+        );
+      }
       resolve({
         status: 200,
         message: "Success",
@@ -249,6 +320,58 @@ const getAllRegisterTracking = () => {
     }
   });
 };
+const getAllForCalendar = () => {
+  return new Promise(async (resolve, reject) => {
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+
+    const todayEnd = new Date();
+    todayEnd.setHours(23, 59, 59, 999);
+
+    try {
+      const records = await RegisterTracking.find({
+        createdAt: {
+          $gte: todayStart,
+          $lte: todayEnd,
+        },
+      })
+        .populate({
+          path: "package.idPackage",
+          select: "sessionWithPT type",
+        })
+        .select("timeStart timeEnd user package idPT")
+        .sort({ createdAt: -1 })
+        .lean();
+
+      // console.log("here", records);
+
+      const records2 = await RegisterTracking.find({
+        timeEnd: {
+          $gte: todayEnd,
+        },
+      })
+        .populate({
+          path: "package.idPackage",
+          select: "sessionWithPT type",
+        })
+        .select("timeStart timeEnd user package idPT")
+        .sort({ createdAt: -1 })
+        .lean();
+
+      console.log(records2);
+      resolve({
+        status: "200",
+        message: "Success",
+        data: {
+          today: records,
+          all: records2,
+        },
+      });
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
 
 const getChartDate = (theDate) => {
   return new Promise(async (resolve, reject) => {
@@ -259,6 +382,20 @@ const getChartDate = (theDate) => {
 
       const registerTrackings = await RegisterTracking.find({
         paidAt: {
+          $gte: startDate,
+          $lt: endDate,
+        },
+      });
+
+      const amountUser = await User.countDocuments({
+        createdAt: {
+          $gte: startDate,
+          $lt: endDate,
+        },
+      });
+
+      const amountArtical = await Artical.countDocuments({
+        createdAt: {
           $gte: startDate,
           $lt: endDate,
         },
@@ -287,6 +424,8 @@ const getChartDate = (theDate) => {
         data: {
           paypal: totalPricePaypal,
           offline: totalPriceOffline,
+          amountArtical: amountArtical,
+          amountUser: amountUser,
         },
       });
     } catch (e) {
@@ -353,6 +492,7 @@ const getChartMonth = (theMonth) => {
 
 module.exports = {
   addRegisterTracking,
+  addPTtoRT,
   paymentRegisterTracking,
   getAllRegisterTrackingOfUser,
   getDetailsRegisterTracking,
@@ -360,4 +500,6 @@ module.exports = {
   getAllRegisterTracking,
   getChartDate,
   getChartMonth,
+  getDetailsByName,
+  getAllForCalendar,
 };

@@ -10,6 +10,7 @@ const userSchema = new mongoose.Schema(
     dateOfBirth: { type: String },
     avatar: { type: String },
     status: { type: String, enum: ["active", "block"], default: "active" },
+    core: { type: Number, default: 0 },
     // inviteToken: { type: String },
   },
   {

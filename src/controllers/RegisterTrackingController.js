@@ -3,6 +3,7 @@ const RegisterTrackingService = require("../services/RegisterTrackingService");
 const addRegisterTracking = async (req, res) => {
   try {
     const { package, user, totalPrice, timeStart, timeEnd } = req.body;
+    console.log(req.body);
     if (
       !package?.idPackage ||
       !user?.email ||
@@ -95,11 +96,33 @@ const getDetailsRegisterTracking = async (req, res) => {
     });
   }
 };
+const getDetailsByName = async (req, res) => {
+  try {
+    const name = req.params.name;
+    if (!name) {
+      return res.status(400).json({
+        status: "400",
+        message: "The user name is required",
+      });
+    }
+    const response = await RegisterTrackingService.getDetailsByName(name);
+    return res.status(200).json(response);
+  } catch (e) {
+    if (e?.status) {
+      return res.status(e?.status).json(e);
+    }
+    return res.status(404).json({
+      message: "Error not found",
+    });
+  }
+};
 
 const cancelRegisterTracking = async (req, res) => {
   try {
     // const data = req.body.orderItems;
+
     const orderId = req.params.id;
+    console.log("id:", orderId);
     if (!orderId) {
       return res.status(400).json({
         status: "400",
@@ -120,9 +143,45 @@ const cancelRegisterTracking = async (req, res) => {
   }
 };
 
+const addPTtoRT = async (req, res) => {
+  try {
+    const idRT = req.params.idRT;
+    const idPT = req.params.idPT;
+
+    if (!idRT || !idPT) {
+      return res.status(400).json({
+        status: "400",
+        message: "Tham số bị thiếu",
+      });
+    }
+    const response = await RegisterTrackingService.addPTtoRT(idRT, idPT);
+    return res.status(200).json(response);
+  } catch (e) {
+    if (e?.status) {
+      return res.status(e?.status).json(e);
+    }
+    return res.status(404).json({
+      message: "Error not found",
+    });
+  }
+};
+
 const getAllRegisterTracking = async (req, res) => {
   try {
     const data = await RegisterTrackingService.getAllRegisterTracking();
+    return res.status(200).json(data);
+  } catch (e) {
+    if (e?.status) {
+      return res.status(e?.status).json(e);
+    }
+    return res.status(404).json({
+      message: "Error not found",
+    });
+  }
+};
+const getAllForCalendar = async (req, res) => {
+  try {
+    const data = await RegisterTrackingService.getAllForCalendar();
     return res.status(200).json(data);
   } catch (e) {
     if (e?.status) {
@@ -172,6 +231,7 @@ const getChartMonth = async (req, res) => {
 
 module.exports = {
   addRegisterTracking,
+  addPTtoRT,
   paymentRegisterTracking,
   getAllRegisterTrackingOfUser,
   getDetailsRegisterTracking,
@@ -179,4 +239,6 @@ module.exports = {
   getAllRegisterTracking,
   getChartDate,
   getChartMonth,
+  getDetailsByName,
+  getAllForCalendar,
 };

@@ -39,16 +39,16 @@ const getHtmlContent = async (templateName, variables) => {
 
 // Hàm gửi email chung
 const sendEmail = async (to, variables = {}, subject, templateName) => {
+  console.log("emailll");
   const transporter = createTransporter();
 
-  // Thay vì truyền trực tiếp tên template, truyền thêm biến invite_token
   const htmlContent = await getHtmlContent(templateName, variables);
 
   const info = await transporter.sendMail({
-    from: '"GymMax" <2002nguyenquocthanh@gmail.com>', // sender address
-    to: to, // list of receivers
-    subject: subject, // Subject line
-    html: htmlContent, // HTML content
+    from: '"GymMax" <2002nguyenquocthanh@gmail.com>',
+    to: to,
+    subject: subject,
+    html: htmlContent,
   });
 
   return info;
@@ -65,8 +65,13 @@ const EmailRegister = async (email, invite_token) => {
 };
 
 // Hàm gửi email đặt lại mật khẩu
-const EmailReset = async (email) => {
-  return sendEmail(email, "Password Reset Request", "emailReset.html");
+const EmailReset = async (email, reset_token) => {
+  return sendEmail(
+    email,
+    { reset_token: reset_token },
+    "Reset Password",
+    "emailReset.html"
+  );
 };
 
 // Hàm gửi email xác nhận đã đăng ký gói tập

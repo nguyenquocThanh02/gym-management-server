@@ -5,6 +5,7 @@ const {
   authUserMiddleWare,
   authUserOrAdminMiddleWare,
   authAdminMiddleWare,
+  authTraineeMiddleWare,
 } = require("../middlewares/authMiddleware");
 
 router.post("/add", RegisterTracking.addRegisterTracking);
@@ -12,6 +13,11 @@ router.put(
   "/payment/:id",
   authAdminMiddleWare,
   RegisterTracking.paymentRegisterTracking
+);
+router.put(
+  "/add-pt-to-rt/:idRT/:idPT",
+  authTraineeMiddleWare,
+  RegisterTracking.addPTtoRT
 );
 
 // // router.get('/get-details-order/:id', RegisterTracking.getDetailsOrder)
@@ -27,9 +33,19 @@ router.get(
   RegisterTracking.getAllRegisterTrackingOfUser
 );
 router.get(
+  "/get-detailbyName/:name",
+  authTraineeMiddleWare,
+  RegisterTracking.getDetailsByName
+);
+router.get(
   "/get-all",
   authAdminMiddleWare,
   RegisterTracking.getAllRegisterTracking
+);
+router.get(
+  "/get-all-for-calendar",
+  // authTraineeMiddleWare,
+  RegisterTracking.getAllForCalendar
 );
 
 router.get(

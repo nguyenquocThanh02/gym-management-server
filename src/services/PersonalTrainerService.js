@@ -11,7 +11,7 @@ const addPT = (newPT) => {
       if (checkExistPhone !== null) {
         reject({
           status: "400",
-          message: "The phone is already",
+          message: "Số điện thoại này đã tồn tại",
         });
       }
 
@@ -114,7 +114,7 @@ const changeStatusPT = (id, status) => {
       );
       resolve({
         status: "200",
-        message: "Change status success",
+        message: "Thay đổi trạng thái thành công",
       });
     } catch (e) {
       reject(e);

@@ -1,6 +1,7 @@
 const Discount = require("../models/DiscountModal");
-const Package = require("../models/PackageModal");
+const Notify = require("../models/NotifyModal");
 const { checkValidTime } = require("./UtilsService");
+const admin = require("../firebase/firebase");
 
 const addDiscount = (newDiscount) => {
   return new Promise(async (resolve, reject) => {
@@ -8,6 +9,23 @@ const addDiscount = (newDiscount) => {
       const createdDiscount = await Discount.create(newDiscount);
 
       if (createdDiscount) {
+        const tokenNotifys = await Notify.find();
+        const messages = tokenNotifys.map((item) => ({
+          notification: {
+            title: "Khuyễn mãi mới",
+            body: "Bạn đang có sẵn 1 khuyến mãi",
+          },
+          token: item?.token,
+        }));
+
+        const sendNotify = await admin.messaging().sendEach(messages);
+
+        sendNotify.responses.forEach(async (resp, idx) => {
+          if (!resp.success) {
+            await Notify.findOneAndDelete({ token: messages[idx]?.token });
+          }
+        });
+
         resolve({
           status: "201",
           message: "SUCCESS",

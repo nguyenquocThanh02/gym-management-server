@@ -28,6 +28,28 @@ const register = async (req, res) => {
     });
   }
 };
+const createPassword = async (req, res) => {
+  try {
+    const { password } = req.body;
+
+    if (!password) {
+      return res.status(400).json({
+        status: "400",
+        message: "The password is required",
+      });
+    }
+
+    const response = await UserService.createPassword(req.body);
+    return res.status(200).json(response);
+  } catch (e) {
+    if (e?.status) {
+      return res.status(e?.status).json(e);
+    }
+    return res.status(404).json({
+      message: "Error not found",
+    });
+  }
+};
 
 const login = async (req, res) => {
   try {
@@ -67,6 +89,29 @@ const inviteAccount = async (req, res) => {
 
     const response = await UserService.inviteAccount(email);
     // res.cookie("jwt", response.access_token, { httpOnly: true });
+    console.log("response2: ", response);
+    return res.status(200).json(response);
+  } catch (e) {
+    if (e?.status) {
+      return res.status(parseInt(e?.status, 10)).json(e);
+    }
+    return res.status(404).json({
+      message: "Error not found",
+    });
+  }
+};
+const reset = async (req, res) => {
+  try {
+    const email = req.params.email || "";
+
+    if (!email) {
+      return res.status(400).json({
+        status: "400",
+        message: "The email is required",
+      });
+    }
+
+    const response = await UserService.reset(email);
     return res.status(200).json(response);
   } catch (e) {
     if (e?.status) {
@@ -90,8 +135,11 @@ const updateUser = async (req, res) => {
     const response = await UserService.updateUser(userId, req.body);
     return res.status(200).json(response);
   } catch (e) {
+    if (e?.status) {
+      return res.status(parseInt(e?.status, 10)).json(e);
+    }
     return res.status(404).json({
-      message: e,
+      message: "Error not found",
     });
   }
 };
@@ -112,7 +160,7 @@ const changeStatus = async (req, res) => {
     return res.status(200).json(response);
   } catch (e) {
     if (e?.status) {
-      return res.status(e?.status).json(e);
+      return res.status(parseInt(e?.status, 10)).json(e);
     }
     return res.status(404).json({
       message: "Error not found",
@@ -136,7 +184,30 @@ const changeRole = async (req, res) => {
     return res.status(200).json(response);
   } catch (e) {
     if (e?.status) {
-      return res.status(e?.status).json(e);
+      return res.status(parseInt(e?.status, 10)).json(e);
+    }
+    return res.status(404).json({
+      message: "Error not found",
+    });
+  }
+};
+
+const changePassword = async (req, res) => {
+  try {
+    const userId = req.params.id;
+
+    if (!userId) {
+      return res.status(400).json({
+        status: "400",
+        message: "The user is required",
+      });
+    }
+
+    const response = await UserService.changePassword(userId, req.body);
+    return res.status(200).json(response);
+  } catch (e) {
+    if (e?.status) {
+      return res.status(parseInt(e?.status, 10)).json(e);
     }
     return res.status(404).json({
       message: "Error not found",
@@ -156,8 +227,11 @@ const deleteUser = async (req, res) => {
     const response = await UserService.deleteUser(userId);
     return res.status(200).json(response);
   } catch (e) {
+    if (e?.status) {
+      return res.status(parseInt(e?.status, 10)).json(e);
+    }
     return res.status(404).json({
-      message: e,
+      message: "Error not found",
     });
   }
 };
@@ -202,8 +276,11 @@ const getDetailsUser = async (req, res) => {
     const response = await UserService.getDetailsUser(userId);
     return res.status(200).json(response);
   } catch (e) {
+    if (e?.status) {
+      return res.status(parseInt(e?.status, 10)).json(e);
+    }
     return res.status(404).json({
-      message: e,
+      message: "Error not found",
     });
   }
 };
@@ -226,6 +303,8 @@ module.exports = {
   register,
   login,
   inviteAccount,
+  reset,
+  createPassword,
   getAllRoleUser,
   getAllRoleTrainee,
   getDetailsUser,
@@ -234,4 +313,5 @@ module.exports = {
   logoutUser,
   changeStatus,
   changeRole,
+  changePassword,
 };

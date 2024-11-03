@@ -2,6 +2,20 @@ const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
 dotenv.config();
 
+const authNormalMiddleWare = (req, res, next) => {
+  const token = req.headers.token.split(" ")[1];
+
+  jwt.verify(token, process.env.ACCESS_TOKEN, function (err, user) {
+    if (err) {
+      return res.status(401).json({
+        message: "The authemtication",
+        status: "ERROR",
+      });
+    }
+    next();
+  });
+};
+
 // Kiểm tra quyền admin bằng xác thực tooken
 const authAdminMiddleWare = (req, res, next) => {
   const token = req.headers.token.split(" ")[1];
@@ -110,4 +124,5 @@ module.exports = {
   authUserMiddleWare,
   authTraineeMiddleWare,
   authUserOrAdminMiddleWare,
+  authNormalMiddleWare,
 };

@@ -13,4 +13,4 @@ const checkTimeCancel = (dateStart) => {
   return timeNow >= theDateStart;
 };
 
-module.exports = { checkValidTime };
+module.exports = { checkValidTime, checkTimeCancel };

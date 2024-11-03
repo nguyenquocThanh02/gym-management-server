@@ -15,7 +15,7 @@ const addPackage = (newPackage) => {
       if (checkExistPackage !== null) {
         throw {
           status: "400",
-          message: "The package name is already exist",
+          message: "Gói tập đã tồn tại",
         };
       }
 

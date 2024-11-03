@@ -60,28 +60,26 @@
           src="https://firebasestorage.googleapis.com/v0/b/videocallapp-4fbc2.appspot.com/o/images%2Flogo.png?alt=media&token=641d8dec-f390-4810-91e1-ef833ce3d99d"
           alt="logo"
         />
-        <h2>You just register tracking successfully a pakage at GymMax</h2>
+        <h2>Bạn vừa đăng ký thành công gói tập tại GymMax</h2>
       </div>
       <div class="email-body">
-        <h3>Detail information</h3>
+        <h3>Thông tin chi tiết</h3>
         {{#if userName}}
-        <p>User: {{userName}}</p>
+        <p>Tài khoản: {{userName}}</p>
         {{/if}}
         <hr />
         {{#if namePackage}}
-        <p>Package: {{namePackage}}</p>
+        <p>Gói tập: {{namePackage}}</p>
         {{/if}} {{#if timeStart}}
-        <p id="timeStart">Time start: {{timeStart}}</p>
+        <p id="timeStart">Thời gian bắt đầu: {{timeStart}}</p>
         {{/if}} {{#if timeEnd}}
-        <p id="timeEnd">Time end: {{timeEnd}}</p>
+        <p id="timeEnd">Thời gian kết thúc: {{timeEnd}}</p>
         {{/if}}
         <hr />
         {{#if totalPrice}}
-        <p>Total Price: {{totalPrice}}</p>
+        <p>Tổng giá: {{totalPrice}}</p>
         {{/if}}
-        <a href="http://localhost:3000/" class="link"
-          >Detail Register Tracking</a
-        >
+        <a href="http://localhost:3000/" class="link">Chi tiết đăng ký</a>
       </div>
     </div>
   </body>

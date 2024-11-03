@@ -6,7 +6,7 @@ const addDevice = async (req, res) => {
     if (!name || !type || !image) {
       return res.status(400).json({
         status: "400",
-        message: "The name, type, image is required",
+        message: "Tên, loại và hình ảnh là thông tin bắt buộc",
       });
     }
     const response = await DeviceService.addDevice(req.body);

@@ -34,6 +34,7 @@ const registerTracking = new mongoose.Schema(
     timeStart: { type: Date, required: true },
     timeEnd: { type: Date, required: true },
     status: { type: String, enum: ["active", "cancel"], default: "active" },
+    idPT: { type: String, default: "" },
   },
   {
     timestamps: true,

@@ -11,7 +11,7 @@ const addDevice = (newDevice) => {
       if (checkExistDevice !== null) {
         reject({
           status: "400",
-          message: "The device is already",
+          message: "Thiết bị với tên này đã có sẵn",
         });
       }
 
@@ -38,7 +38,7 @@ const getDetailsDevice = (id) => {
       if (device === null) {
         reject({
           status: "400",
-          message: "The device is not defined",
+          message: "Không tìm thầy thiết bị này",
         });
       }
       resolve({

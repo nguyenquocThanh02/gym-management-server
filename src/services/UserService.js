@@ -7,6 +7,7 @@ const {
   genneralAccessToken,
   genneralRefreshToken,
   genneralTokenInvite,
+  genneralTokenResetPasword,
 } = require("./JwtService");
 
 const register = (newUser) => {
@@ -22,14 +23,14 @@ const register = (newUser) => {
       if (checkUserEmail !== null) {
         throw {
           status: "400",
-          message: "The email is already exist",
+          message: "Email đã tồn tại",
         };
       }
 
       if (checkUserAccountName !== null) {
         throw {
           status: "400",
-          message: "The account name is already exist",
+          message: "Tên tài khoản đã tồn tại",
         };
       }
       const hash = bcrypt.hashSync(password, 10);
@@ -50,7 +51,7 @@ const register = (newUser) => {
             if (infor?.email !== newUser?.email) {
               throw {
                 status: "400",
-                message: "The email incorrect",
+                message: "Email không chính xác",
               };
             }
           }
@@ -84,6 +85,54 @@ const register = (newUser) => {
     }
   });
 };
+const createPassword = (data) => {
+  return new Promise(async (resolve, reject) => {
+    const { password, resetToken } = data;
+    try {
+      jwt.verify(
+        resetToken,
+        process.env.RESET_TOKEN,
+        async function (err, infor) {
+          if (err) {
+            reject({
+              status: 401,
+              message: "Authentication",
+            });
+          }
+
+          if (infor?.email) {
+            const theUser = await User.findOne({
+              email: infor?.email,
+            });
+
+            if (!theUser) {
+              return reject({
+                status: "400",
+                message: "Email không tồn tại",
+              });
+            }
+
+            const hash = bcrypt.hashSync(password, 10);
+
+            await User.findOneAndUpdate(
+              { email: infor?.email },
+              { password: hash },
+              { new: true }
+            );
+
+            resolve({
+              status: 200,
+              message: "SUCCESS",
+              data: { role: theUser?.role },
+            });
+          }
+        }
+      );
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
 
 const login = (userLogin, role) => {
   return new Promise(async (resolve, reject) => {
@@ -103,7 +152,7 @@ const login = (userLogin, role) => {
       if (checkUser === null) {
         reject({
           status: "400",
-          message: "The user is not defined",
+          message: "Tài khoản không tồn tại",
         });
       }
 
@@ -111,7 +160,7 @@ const login = (userLogin, role) => {
       if (password !== checkUser.password && !comparePassword) {
         reject({
           status: "400",
-          message: "The password or user is incorrect",
+          message: "Mật khẩu hoặc tài khoản không đúng",
         });
       }
 
@@ -119,10 +168,17 @@ const login = (userLogin, role) => {
         if (checkUser.role !== "admin")
           reject({
             status: "405",
-            message: "You don't have admin permit",
+            message: "Bạn không có quyền admin",
           });
       }
 
+      if (role === "trainee") {
+        if (checkUser.role !== "admin" && checkUser.role !== "trainee")
+          reject({
+            status: "405",
+            message: "Bạn không có quyền nhân viên",
+          });
+      }
       const access_token = await genneralAccessToken({
         id: checkUser.id,
         role: checkUser.role,
@@ -155,14 +211,14 @@ const changeStatus = (id, status) => {
       if (checkExistUser === null) {
         reject({
           status: "400",
-          message: "The User is not defined",
+          message: "Tài khoản không tồn tại",
         });
       }
 
       await User.findByIdAndUpdate(id, { status: status }, { new: true });
       resolve({
         status: "200",
-        message: "Change status success",
+        message: "Thay đổi trạng thái thành công",
       });
     } catch (e) {
       reject(e);
@@ -186,25 +242,55 @@ const inviteAccount = (email) => {
           );
           resolve({
             status: "200",
-            message: "Change status success",
+            message: "Thay đổi trạng thái thành công",
           });
         }
         reject({
           status: "400",
-          message: "The email is already permission manage",
+          message: "Email này đã là tài khoản nhân viên",
         });
       } else {
         const invite_token = await genneralTokenInvite({
           email: email,
         });
+
         const response = await EmailService.EmailRegister(email, invite_token);
 
+        console.log("response: ", response);
         resolve({
-          status: "200",
+          status: 200,
           message: "SUCCESS",
-          data: response,
         });
       }
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+const reset = (email) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const checkUserEmail = await User.findOne({
+        email: email,
+      });
+
+      if (checkUserEmail === null) {
+        throw {
+          status: 403,
+          message: "Email không tồn tại",
+        };
+      }
+
+      const reset_token = await genneralTokenResetPasword({
+        email: email,
+      });
+      const response = await EmailService.EmailReset(email, reset_token);
+
+      resolve({
+        status: 200,
+        message: "SUCCESS",
+        data: response,
+      });
     } catch (e) {
       reject(e);
     }
@@ -220,20 +306,57 @@ const changeRole = (id, role) => {
       if (checkExistAccount === null) {
         reject({
           status: "400",
-          message: "The account is not defined",
+          message: "Tài khoản không xác định",
         });
       }
 
       await User.findByIdAndUpdate(id, { role: role }, { new: true });
       resolve({
         status: "200",
-        message: "Change status success",
+        message: "Thay đổi trạng thái thành công",
       });
     } catch (e) {
       reject(e);
     }
   });
 };
+
+const changePassword = (id, data) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const checkUser = await User.findOne({
+        _id: id,
+      });
+      if (checkUser === null) {
+        throw {
+          status: 400,
+          message: "Tài khoản không xác định",
+        };
+      }
+      const comparePassword = bcrypt.compareSync(
+        data?.password,
+        checkUser.password
+      );
+      if (!comparePassword) {
+        throw {
+          status: 400,
+          message: "Mật khẩu không đúng",
+        };
+      }
+
+      const hash = bcrypt.hashSync(data?.newPassword, 10);
+
+      await User.findByIdAndUpdate(id, { password: hash }, { new: true });
+      resolve({
+        status: 200,
+        message: "Thay đổi mật khẩu thành công",
+      });
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
 const getDetailsUser = (id) => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -243,7 +366,7 @@ const getDetailsUser = (id) => {
       if (user === null) {
         resolve({
           status: "403",
-          message: "The user is not defined",
+          message: "Người dùng không tồn tại",
         });
       }
       resolve({
@@ -263,7 +386,7 @@ const getAllRoleUser = () => {
       if (users === null) {
         reject({
           status: "400",
-          message: "The users is not defined",
+          message: "Người dùng không tồn tại",
         });
       }
       resolve({
@@ -284,7 +407,7 @@ const getAllRoleTrainee = () => {
       if (trainees === null) {
         reject({
           status: "400",
-          message: "The trainees is not defined",
+          message: "Nhân viên không tìm thấy",
         });
       }
       resolve({
@@ -312,23 +435,28 @@ const updateUser = (id, data) => {
         };
       }
 
-      const checkUserEmail = await User.findOne({
-        email: email,
-      });
-      const checkUserAccountName = await User.findOne({
-        accountName: accountName,
-      });
-      if (checkUserEmail !== null) {
-        throw {
-          status: "400",
-          message: "The email is already exist",
-        };
+      if (accountName !== checkUser?.accountName) {
+        const checkUserAccountName = await User.findOne({
+          accountName: accountName,
+        });
+        if (checkUserAccountName !== null) {
+          throw {
+            status: "400",
+            message: "Tên tài khoản đã tồn tại",
+          };
+        }
       }
-      if (checkUserAccountName !== null) {
-        throw {
-          status: "400",
-          message: "The account name is already exist",
-        };
+
+      if (email !== checkUser?.email) {
+        const checkUserEmail = await User.findOne({
+          email: email,
+        });
+        if (checkUserEmail !== null) {
+          throw {
+            status: "400",
+            message: "Email đã tồn tại",
+          };
+        }
       }
 
       const updatedUser = await User.findByIdAndUpdate(id, data, { new: true });
@@ -351,15 +479,15 @@ const deleteUser = (id) => {
       });
       if (checkUser === null) {
         resolve({
-          status: "ERR",
-          message: "The user is not defined",
+          status: "403",
+          message: "Người dùng không xác định",
         });
       }
 
       await User.findByIdAndDelete(id);
       resolve({
-        status: "OK",
-        message: "Delete user success",
+        status: "200",
+        message: "Xoá tài khoản thành công",
       });
     } catch (e) {
       reject(e);
@@ -371,6 +499,8 @@ module.exports = {
   register,
   login,
   inviteAccount,
+  reset,
+  createPassword,
   updateUser,
   deleteUser,
   getDetailsUser,
@@ -378,4 +508,5 @@ module.exports = {
   getAllRoleTrainee,
   changeStatus,
   changeRole,
+  changePassword,
 };
