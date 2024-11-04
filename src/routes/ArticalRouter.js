@@ -5,12 +5,13 @@ const {
   authUserOrAdminMiddleWare,
   authAdminMiddleWare,
   authUserMiddleWare,
+  authTraineeMiddleWare,
 } = require("../middlewares/authMiddleware");
 const ArticalController = require("../controllers/ArticalController");
 router.post("/add", authNormalMiddleWare, ArticalController.addNewArtical);
 router.put(
   "/change-status/:id/:status",
-  authAdminMiddleWare,
+  authTraineeMiddleWare,
   ArticalController.changeStatusArtical
 );
 router.get("/get-all/:status", ArticalController.getAllArticals);
@@ -23,7 +24,7 @@ router.get("/get-new", ArticalController.getNewArticals);
 router.get("/get-details/:id", ArticalController.getDetailsArtical);
 router.delete(
   "/delete/:id",
-  authAdminMiddleWare,
+  authTraineeMiddleWare,
   ArticalController.deleteArtical
 );
 

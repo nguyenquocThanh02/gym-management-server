@@ -19,6 +19,7 @@ const addDiscount = (newDiscount) => {
         }));
 
         const sendNotify = await admin.messaging().sendEach(messages);
+        console.log(sendNotify);
 
         sendNotify.responses.forEach(async (resp, idx) => {
           if (!resp.success) {

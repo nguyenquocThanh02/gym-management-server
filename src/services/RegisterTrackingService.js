@@ -38,26 +38,27 @@ const addRegisterTracking = (newTracking) => {
         const createdRegisterTracking = await RegisterTracking.create(
           newTracking
         );
-        try {
-          if (user?.idUser) {
-            await User.findOneAndUpdate(
-              { email: user.email },
-              { core: 4 },
-              { new: true }
-            );
-          }
-          await EmailService.EmailConfirm(user?.email, {
-            namePackage: package?.name,
-            totalPrice: totalPrice,
-            nameUser: user?.fullName,
-            timeStart: timeStart,
-            timeEnd: timeEnd,
-            isPaid: isPaid,
-          });
-        } catch (err) {
-          console.err(err);
+
+        console.log("thanh", user);
+        if (user?.idUser) {
+          await User.findOneAndUpdate(
+            { email: user?.email },
+            { core: 4 },
+            { new: true }
+          );
         }
 
+        console.log("herre");
+        await EmailService.EmailConfirm(user?.email, {
+          namePackage: package?.name,
+          totalPrice: totalPrice,
+          nameUser: user?.fullName,
+          timeStart: timeStart,
+          timeEnd: timeEnd,
+          isPaid: isPaid,
+        });
+
+        console.log("qua day");
         resolve({
           status: "201",
           message: "SUCCESS",

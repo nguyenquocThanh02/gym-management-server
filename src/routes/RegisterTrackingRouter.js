@@ -11,7 +11,7 @@ const {
 router.post("/add", RegisterTracking.addRegisterTracking);
 router.put(
   "/payment/:id",
-  authAdminMiddleWare,
+  authTraineeMiddleWare,
   RegisterTracking.paymentRegisterTracking
 );
 router.put(
@@ -22,11 +22,7 @@ router.put(
 
 // // router.get('/get-details-order/:id', RegisterTracking.getDetailsOrder)
 router.put("/cancel/:id", RegisterTracking.cancelRegisterTracking);
-router.get(
-  "/get-details/:id",
-  authUserOrAdminMiddleWare,
-  RegisterTracking.getDetailsRegisterTracking
-);
+router.get("/get-details/:id", RegisterTracking.getDetailsRegisterTracking);
 router.get(
   "/get-all-of-user/:id",
   authUserOrAdminMiddleWare,
@@ -39,7 +35,7 @@ router.get(
 );
 router.get(
   "/get-all",
-  authAdminMiddleWare,
+  authTraineeMiddleWare,
   RegisterTracking.getAllRegisterTracking
 );
 router.get(
