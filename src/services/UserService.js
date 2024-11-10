@@ -1,4 +1,5 @@
 const User = require("../models/UserModel");
+const RegisterTracking = require("../models/RegisterTrackingModal");
 const EmailService = require("../services/EmailService");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
@@ -363,15 +364,20 @@ const getDetailsUser = (id) => {
       const user = await User.findOne({
         _id: id,
       });
-      if (user === null) {
-        resolve({
-          status: "403",
-          message: "Người dùng không tồn tại",
-        });
+
+      if (!user) {
+        throw new Error("User not found");
       }
+
+      const count = await RegisterTracking.countDocuments({
+        "user.idUser": user._id,
+      });
+
+      user.count = count;
+
       resolve({
         status: "200",
-        message: "SUCESS",
+        message: "SUCCESS",
         data: user,
       });
     } catch (e) {

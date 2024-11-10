@@ -19,6 +19,7 @@ const addRegisterTracking = async (req, res) => {
     const response = await RegisterTrackingService.addRegisterTracking(
       req.body
     );
+
     return res.status(200).json(response);
   } catch (e) {
     if (e?.status) {

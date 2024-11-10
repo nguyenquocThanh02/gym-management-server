@@ -11,6 +11,7 @@ const userSchema = new mongoose.Schema(
     avatar: { type: String },
     status: { type: String, enum: ["active", "block"], default: "active" },
     core: { type: Number, default: 0 },
+    count: { type: Number, default: 0 },
     // inviteToken: { type: String },
   },
   {

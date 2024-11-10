@@ -27,6 +27,8 @@ const addRegisterTracking = (newTracking) => {
         { new: true }
       );
 
+      console.log("herreee0");
+
       if (!packageData) {
         return reject({
           status: "403",
@@ -35,11 +37,12 @@ const addRegisterTracking = (newTracking) => {
       }
 
       try {
+        console.log("herreee1", newTracking);
+
         const createdRegisterTracking = await RegisterTracking.create(
           newTracking
         );
 
-        console.log("thanh", user);
         if (user?.idUser) {
           await User.findOneAndUpdate(
             { email: user?.email },
@@ -47,8 +50,8 @@ const addRegisterTracking = (newTracking) => {
             { new: true }
           );
         }
+        console.log("herreee2");
 
-        console.log("herre");
         await EmailService.EmailConfirm(user?.email, {
           namePackage: package?.name,
           totalPrice: totalPrice,
@@ -57,10 +60,13 @@ const addRegisterTracking = (newTracking) => {
           timeEnd: timeEnd,
           isPaid: isPaid,
         });
+        console.log(
+          "🚀 ~ returnnewPromise ~ createdRegisterTracking:",
+          createdRegisterTracking
+        );
 
-        console.log("qua day");
         resolve({
-          status: "201",
+          status: 201,
           message: "SUCCESS",
           data: createdRegisterTracking,
         });
@@ -147,9 +153,12 @@ const getAllRegisterTrackingOfUser = (id) => {
 const getDetailsRegisterTracking = (id) => {
   return new Promise(async (resolve, reject) => {
     try {
+      console.log("id:", id);
+      console.log("Type of id:", typeof id);
       const registerTracking = await RegisterTracking.findById({
         _id: id,
       });
+      console.log("test: ", registerTracking);
       if (registerTracking === null) {
         throw {
           status: "403",
@@ -170,14 +179,16 @@ const getDetailsRegisterTracking = (id) => {
 const getDetailsByName = (name) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const registerTracking = await RegisterTracking.find({
+      let registerTracking = await RegisterTracking.find({
         "user.fullName": name,
       });
+
       if (registerTracking?.length < 1) {
-        registerTracking = await RegisterTracking.findById(name);
+        registerTracking = await RegisterTracking.find({
+          _id: name,
+        });
       }
 
-      console.log(registerTracking);
       if (registerTracking?.length < 1) {
         throw {
           status: "403",
@@ -427,6 +438,7 @@ const getChartDate = (theDate) => {
           offline: totalPriceOffline,
           amountArtical: amountArtical,
           amountUser: amountUser,
+          registerTrackings: registerTrackings,
         },
       });
     } catch (e) {
