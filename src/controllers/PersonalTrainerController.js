@@ -69,7 +69,8 @@ const changeStatusPT = async (req, res) => {
 
 const getAllPT = async (req, res) => {
   try {
-    const response = await PersonalTrainerService.getAllPT();
+    const { getAll } = req.params;
+    const response = await PersonalTrainerService.getAllPT(getAll);
     return res.status(200).json(response);
   } catch (e) {
     if (e?.status) {

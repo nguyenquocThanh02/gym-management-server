@@ -76,9 +76,14 @@ const getDetailsPackage = (id) => {
     }
   });
 };
-const getAllPackage = async () => {
+const getAllPackage = async (getAll) => {
   try {
-    const packages = await Package.find();
+    let packages;
+    if (getAll === "true") {
+      packages = await Package.find();
+    } else {
+      packages = await Package.find({ status: "active" });
+    }
     const Discounts = await Discount.find({
       status: "active",
     });
@@ -118,7 +123,10 @@ const getAllPackage = async () => {
 const getAllPackageName = () => {
   return new Promise(async (resolve, reject) => {
     try {
-      const Packages = await Package.find();
+      const Packages = await Package.find({
+        status: "active",
+        stock: { $gt: 0 },
+      });
       const arrsPackageName = Packages.map((pkg) => ({
         id: pkg.id,
         name: pkg.name,
@@ -136,7 +144,7 @@ const getAllPackageName = () => {
 };
 const getPopularPackage = async () => {
   try {
-    const packages = await Package.find();
+    const packages = await Package.find({ status: "active" });
 
     const sortedPackages = packages
       .sort((a, b) => b.register - a.register)

@@ -142,10 +142,12 @@ const login = (userLogin, role) => {
     try {
       const checkUserByName = await User.findOne({
         accountName: account,
+        status: "active",
       });
 
       const checkUserByEmail = await User.findOne({
         email: account,
+        status: "active",
       });
 
       const checkUser = checkUserByEmail || checkUserByName;
@@ -242,12 +244,12 @@ const inviteAccount = (email) => {
             { new: true }
           );
           resolve({
-            status: "200",
+            status: 203,
             message: "Thay đổi trạng thái thành công",
           });
         }
         reject({
-          status: "400",
+          status: 400,
           message: "Email này đã là tài khoản nhân viên",
         });
       } else {

@@ -10,7 +10,7 @@ router.put(
   DiscountController.updateDiscount
 );
 
-router.get("/get-all", DiscountController.getAllDiscount);
+router.get("/get-all/:getAll", DiscountController.getAllDiscount);
 router.get("/get-active", DiscountController.getActiveDiscount);
 router.get("/get-details/:id", DiscountController.getDetailsDiscount);
 router.put(

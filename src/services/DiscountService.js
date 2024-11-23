@@ -62,10 +62,15 @@ const getDetailsDiscount = (id) => {
     }
   });
 };
-const getAllDiscount = () => {
+const getAllDiscount = (getAll) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const Discounts = await Discount.find();
+      let Discounts;
+      if (getAll === "true") {
+        Discounts = await Discount.find();
+      } else {
+        Discounts = await Discount.find({ status: "active" });
+      }
 
       resolve({
         status: "200",
@@ -90,6 +95,7 @@ const getActiveDiscount = () => {
           checkValidTime(discount.validFrom, discount.validTo)
         );
 
+        console.log("🚀 ~ returnnewPromise ~ Discounts:", validDiscounts);
         if (validDiscounts?.length > 0) {
           resolve({
             status: "200",

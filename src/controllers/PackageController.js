@@ -72,7 +72,8 @@ const changeStatusPackage = async (req, res) => {
 
 const getAllPackage = async (req, res) => {
   try {
-    const response = await PackageService.getAllPackage();
+    const {getAll} = req.params
+    const response = await PackageService.getAllPackage(getAll);
     return res.status(200).json(response);
   } catch (e) {
     if (e?.status) {

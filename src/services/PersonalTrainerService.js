@@ -51,10 +51,15 @@ const getDetailsPT = (id) => {
     }
   });
 };
-const getAllPT = () => {
+const getAllPT = (getAll) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const pts = await PersonalTrainer.find();
+      let pts;
+      if (getAll === "true") {
+        pts = await PersonalTrainer.find();
+      } else {
+        pts = await PersonalTrainer.find({ status: "active" });
+      }
 
       resolve({
         status: "200",

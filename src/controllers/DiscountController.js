@@ -72,7 +72,8 @@ const changeStatusDiscount = async (req, res) => {
 
 const getAllDiscount = async (req, res) => {
   try {
-    const response = await DiscountService.getAllDiscount();
+    const { getAll } = req.params;
+    const response = await DiscountService.getAllDiscount(getAll);
     return res.status(200).json(response);
   } catch (e) {
     if (e?.status) {

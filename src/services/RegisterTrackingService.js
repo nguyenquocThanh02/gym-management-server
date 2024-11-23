@@ -464,8 +464,20 @@ const getChartMonth = (theMonth) => {
       });
 
       const dailyData = {};
+      const packageCount = {};
 
       registerTrackings.forEach((tracking) => {
+        const packageName = tracking.package.name;
+        console.log(
+          "🚀 ~ registerTrackings.forEach ~ packageName:",
+          packageName
+        );
+
+        if (!packageCount[packageName]) {
+          packageCount[packageName] = 0;
+        }
+        packageCount[packageName]++;
+
         const dateKey = tracking.paidAt.toISOString().split("T")[0];
         const isPaypal = tracking.paymentMethod === "paypal";
 
@@ -479,6 +491,11 @@ const getChartMonth = (theMonth) => {
           dailyData[dateKey].offline += tracking.totalPrice;
         }
       });
+
+      const packageStats = Object.keys(packageCount).map((packageName) => ({
+        packageName,
+        count: packageCount[packageName],
+      }));
 
       const chartData = [];
       for (let day = 2; day <= daysInMonth + 1; day++) {
@@ -495,7 +512,10 @@ const getChartMonth = (theMonth) => {
       resolve({
         status: 200,
         message: "Success",
-        data: chartData,
+        data: {
+          chart: chartData,
+          package: packageStats,
+        },
       });
     } catch (e) {
       reject(e);
